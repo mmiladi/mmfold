@@ -1,0 +1,112 @@
+\hypertarget{file__formats_8h}{\section{file\-\_\-formats.\-h}
+\label{file__formats_8h}\index{Vienna\-R\-N\-A/file\-\_\-formats.\-h@{Vienna\-R\-N\-A/file\-\_\-formats.\-h}}
+}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#ifndef VIENNA\_RNA\_PACKAGE\_FILE\_FORMATS\_H}
+00002 \textcolor{preprocessor}{}\textcolor{preprocessor}{#define VIENNA\_RNA\_PACKAGE\_FILE\_FORMATS\_H}
+00003 \textcolor{preprocessor}{}
+00004 \textcolor{preprocessor}{#ifdef DEPRECATION\_WARNINGS}
+00005 \textcolor{preprocessor}{}\textcolor{preprocessor}{# ifdef \_\_GNUC\_\_}
+00006 \textcolor{preprocessor}{}\textcolor{preprocessor}{#  define DEPRECATED(func) func \_\_attribute\_\_ ((deprecated))}
+00007 \textcolor{preprocessor}{}\textcolor{preprocessor}{# else}
+00008 \textcolor{preprocessor}{}\textcolor{preprocessor}{#  define DEPRECATED(func) func}
+00009 \textcolor{preprocessor}{}\textcolor{preprocessor}{# endif}
+00010 \textcolor{preprocessor}{}\textcolor{preprocessor}{#else}
+00011 \textcolor{preprocessor}{}\textcolor{preprocessor}{# define DEPRECATED(func) func}
+00012 \textcolor{preprocessor}{}\textcolor{preprocessor}{#endif}
+00013 \textcolor{preprocessor}{}
+00014 \textcolor{comment}{/* make this interface backward compatible with RNAlib < 2.2.0 */}
+00015 \textcolor{preprocessor}{#define VRNA\_BACKWARD\_COMPAT}
+00016 \textcolor{preprocessor}{}
+00028 \textcolor{preprocessor}{#include <stdio.h>}
+00029 
+00030 \textcolor{preprocessor}{#include <\hyperlink{data__structures_8h}{ViennaRNA/data\_structures.h}>}
+00031 
+00039 \textcolor{keywordtype}{void} \hyperlink{group__file__utils_gaaface7db12fadc3d271641c4515ab6e4}{vrna\_file\_helixlist}( \textcolor{keyword}{const} \textcolor{keywordtype}{char} *seq,
+00040                           \textcolor{keyword}{const} \textcolor{keywordtype}{char} *db,
+00041                           \textcolor{keywordtype}{float} energy,
+00042                           FILE *file);
+00043 
+00067 \textcolor{keywordtype}{void} \hyperlink{group__file__utils_gab69682373ccca1e0e28cc967eec07745}{vrna\_file\_connect}( \textcolor{keyword}{const} \textcolor{keywordtype}{char} *seq,
+00068                         \textcolor{keyword}{const} \textcolor{keywordtype}{char} *db,
+00069                         \textcolor{keywordtype}{float} energy,
+00070                         \textcolor{keyword}{const} \textcolor{keywordtype}{char} *identifier,
+00071                         FILE *file);
+00072 
+00080 \textcolor{keywordtype}{void} \hyperlink{group__file__utils_ga9b462e6f202594af5d3fa56e280d633f}{vrna\_file\_bpseq}( \textcolor{keyword}{const} \textcolor{keywordtype}{char} *seq,
+00081                       \textcolor{keyword}{const} \textcolor{keywordtype}{char} *db,
+00082                       FILE *file);
+00083 
+00084 \textcolor{preprocessor}{#if WITH\_JSON\_SUPPORT}
+00085 \textcolor{preprocessor}{}
+00095 \textcolor{keywordtype}{void} \hyperlink{group__file__utils_ga31f4a6c2ea1495a6e4f9eb45a9f6193d}{vrna\_file\_json}(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *seq,
+00096                     \textcolor{keyword}{const} \textcolor{keywordtype}{char} *db,
+00097                     \textcolor{keywordtype}{double} energy,
+00098                     \textcolor{keyword}{const} \textcolor{keywordtype}{char} *identifier,
+00099                     FILE *file);
+00100 
+00101 \textcolor{preprocessor}{#endif}
+00102 \textcolor{preprocessor}{}
+00167 \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} \hyperlink{group__file__utils_ga8cfb7e271efc9e1f34640acb85475639}{vrna\_file\_fasta\_read\_record}(\textcolor{keywordtype}{char} **header,
+00168                                     \textcolor{keywordtype}{char} **sequence,
+00169                                     \textcolor{keywordtype}{char}  ***rest,
+00170                                     FILE *file,
+00171                                     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} options);
+00172 
+00173 \textcolor{comment}{/* @brief Extract a dot-bracket structure string from (multiline)character array}
+00174 \textcolor{comment}{ *}
+00175 \textcolor{comment}{ * This function extracts a dot-bracket structure string from the 'rest' array as}
+00176 \textcolor{comment}{ * returned by vrna\_file\_fasta\_read\_record() and returns it. All occurences of comments within the}
+00177 \textcolor{comment}{ * 'lines' array will be skipped as long as they do not break the structure string.}
+00178 \textcolor{comment}{ * If no structure could be read, this function returns NULL.}
+00179 \textcolor{comment}{ *}
+00180 \textcolor{comment}{ * @see vrna\_file\_fasta\_read\_record()}
+00181 \textcolor{comment}{ *}
+00182 \textcolor{comment}{ * @param lines   The (multiline) character array to be parsed}
+00183 \textcolor{comment}{ * @param length  The assumed length of the dot-bracket string (passing a value < 1 results in no length
+       limit)}
+00184 \textcolor{comment}{ * @param option  Some options which may be passed to alter the behavior of the function, use 0 for no
+       options}
+00185 \textcolor{comment}{ * @return        The dot-bracket string read from lines or NULL}
+00186 \textcolor{comment}{ */}
+00187 \textcolor{keywordtype}{char} *vrna\_extract\_record\_rest\_structure( \textcolor{keyword}{const} \textcolor{keywordtype}{char} **lines,
+00188                                           \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} length,
+00189                                           \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} option);
+00190 
+00206 \textcolor{keywordtype}{void} \hyperlink{group__file__utils_ga55a9ae6dfeecc1b3f0c2acf6fa796c15}{vrna\_extract\_record\_rest\_constraint}( \textcolor{keywordtype}{char} **cstruc,
+00207                                           \textcolor{keyword}{const} \textcolor{keywordtype}{char} **lines,
+00208                                           \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} option);
+00209 
+00222 \textcolor{keywordtype}{int} \hyperlink{group__file__utils_ga646ebf45450a69a7f2533f9ecd283a32}{vrna\_file\_SHAPE\_read}( \textcolor{keyword}{const} \textcolor{keywordtype}{char} *file\_name,
+00223                           \textcolor{keywordtype}{int} length,
+00224                           \textcolor{keywordtype}{double} default\_value,
+00225                           \textcolor{keywordtype}{char} *sequence,
+00226                           \textcolor{keywordtype}{double} *values);
+00227 
+00239 \hyperlink{group__data__structures_structvrna__plist__s}{vrna\_plist\_t} *\hyperlink{group__file__utils_gae33323c53765ecbbc410d9de2d495432}{vrna\_file\_constraints\_read}( \textcolor{keyword}{const} \textcolor{keywordtype}{char} *filename,
+00240                                           \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} length,
+00241                                           \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} options);
+00242 
+00243 \textcolor{preprocessor}{#ifdef  VRNA\_BACKWARD\_COMPAT}
+00244 \textcolor{preprocessor}{}
+00245 \textcolor{comment}{/* @brief Extract a dot-bracket structure string from (multiline)character array}
+00246 \textcolor{comment}{ *}
+00247 \textcolor{comment}{ * @deprecated This function is deprecated! Use vrna\_extract\_record\_rest\_structure() as a replacment.}
+00248 \textcolor{comment}{ */}
+00249 DEPRECATED(\textcolor{keywordtype}{char} *extract\_record\_rest\_structure( \textcolor{keyword}{const} \textcolor{keywordtype}{char} **lines,
+00250                                                 \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} length,
+00251                                                 \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} option));
+00252 
+00259 DEPRECATED(\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} \hyperlink{group__file__utils_gafd194a69af9d92b5b0412a7627ac1595}{read\_record}(\textcolor{keywordtype}{char} **header,
+00260                                     \textcolor{keywordtype}{char} **sequence,
+00261                                     \textcolor{keywordtype}{char}  ***rest,
+00262                                     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} options));
+00263 
+00264 
+00265 DEPRECATED(\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} get\_multi\_input\_line(\textcolor{keywordtype}{char} **\textcolor{keywordtype}{string}, \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} options));
+00266 
+00267 \textcolor{preprocessor}{#endif}
+00268 \textcolor{preprocessor}{}
+00273 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

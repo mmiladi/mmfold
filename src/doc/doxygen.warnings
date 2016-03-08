@@ -1,0 +1,124 @@
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:7: warning: group data_structures: ignoring title "Common Data Structures and Preprocessor Macros" that does not match old title "Data Structures and Preprocessor Macros"
+
+/home/milad/workspace/mmfold/src/ViennaRNA/eval.h:29: warning: group eval: ignoring title "Functions to Evaluate Free Energies for given Sequence / Structure Pairs" that does not match old title "Free Energy Evaluation for given Sequence / Structure Pairs"
+
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:218: warning: Compound interact is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:287: warning: Compound node is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/list.h:21: warning: Compound LIST is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/dist_vars.h:46: warning: Compound swString is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/structure_utils.h:32: warning: Compound vrna_hx_s is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/dist_vars.h:41: warning: Compound Tree is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:325: warning: Compound dupVar is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:87: warning: Compound vrna_dimer_pf_s is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/move_set.h:5: warning: Compound _struct_en is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/dist_vars.h:33: warning: Compound Postorder_list is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/list.h:16: warning: Compound LST_BUCKET is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:296: warning: Compound snoopT is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:259: warning: Compound duplexT is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:99: warning: Compound vrna_dimer_conc_s is not documented.
+/home/milad/workspace/mmfold/src/ViennaRNA/2Dpfold.h:309: warning: explicit link request to 'TwoDpfold_solution' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/params.h:353: warning: explicit link request to 'vrna_ex_param_s' could not be resolved
+deprecated:156: warning: explicit link request to 'vrna_md_t.nc_fact' could not be resolved
+citelist:4: warning: Unexpected new line character
+citelist:12: warning: Unexpected new line character
+citelist:20: warning: Unexpected new line character
+citelist:27: warning: Unexpected new line character
+citelist:35: warning: Unexpected new line character
+citelist:36: warning: Unexpected new line character
+citelist:52: warning: Unexpected new line character
+citelist:77: warning: Unexpected new line character
+citelist:78: warning: Unexpected new line character
+citelist:88: warning: Unexpected new line character
+citelist:122: warning: Unexpected new line character
+citelist:138: warning: Unexpected new line character
+/home/milad/workspace/mmfold/src/ViennaRNA/gquad.h:416: warning: The following parameters of backtrack_GQuad_IntLoop_L(int c, int i, int j, int type, short *S, int **ggg, int maxdist, int *p, int *q, vrna_param_t *P) are not documented:
+  parameter 'maxdist'
+/home/milad/workspace/mmfold/src/ViennaRNA/params.h:353: warning: explicit link request to 'vrna_ex_param_s' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/params.h:353: warning: explicit link request to 'vrna_ex_param_s' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/model.h:162: warning: explicit link request to 'vrna_md_t.nc_fact' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/utils.h:254: warning: explicit link request to 'VRNA_INPUT_NOPRINT_COMMENTS' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/utils.h:100: warning: explicit link request to 'VRNA_INPUT_NOELIM_WS_SUFFIX' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func.h:77: warning: argument 'sequences' of command @param is not found in the argument list of vrna_pf_fold(const char *seq, char *structure, vrna_plist_t **pl)
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func.h:77: warning: The following parameters of vrna_pf_fold(const char *seq, char *structure, vrna_plist_t **pl) are not documented:
+  parameter 'seq'
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func.h:102: warning: argument 'sequences' of command @param is not found in the argument list of vrna_pf_circfold(const char *seq, char *structure, vrna_plist_t **pl)
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func.h:102: warning: The following parameters of vrna_pf_circfold(const char *seq, char *structure, vrna_plist_t **pl) are not documented:
+  parameter 'seq'
+/home/milad/workspace/mmfold/src/ViennaRNA/structure_utils.h:210: warning: argument 'cutoff' of command @param is not found in the argument list of vrna_plist_from_probs(vrna_fold_compound_t *vc, double cut_off)
+/home/milad/workspace/mmfold/src/ViennaRNA/structure_utils.h:210: warning: The following parameters of vrna_plist_from_probs(vrna_fold_compound_t *vc, double cut_off) are not documented:
+  parameter 'cut_off'
+/home/milad/workspace/mmfold/src/ViennaRNA/subopt.h:62: warning: explicit link request to 'vrna_subopt_solution_t' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/subopt.h:151: warning: explicit link request to 'SOLUTION' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/boltzmann_sampling.h:18: warning: explicit link request to 'VRNA_OPTION_HYBRID' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/boltzmann_sampling.h:31: warning: argument 'length' of command @param is not found in the argument list of vrna_pbacktrack(vrna_fold_compound_t *vc)
+/home/milad/workspace/mmfold/src/ViennaRNA/fold.h:36: warning: argument 'sequence' of command @param is not found in the argument list of vrna_fold(const char *string, char *structure)
+/home/milad/workspace/mmfold/src/ViennaRNA/fold.h:36: warning: The following parameters of vrna_fold(const char *string, char *structure) are not documented:
+  parameter 'string'
+/home/milad/workspace/mmfold/src/ViennaRNA/fold.h:59: warning: argument 'sequence' of command @param is not found in the argument list of vrna_circfold(const char *string, char *structure)
+/home/milad/workspace/mmfold/src/ViennaRNA/fold.h:59: warning: The following parameters of vrna_circfold(const char *string, char *structure) are not documented:
+  parameter 'string'
+/home/milad/workspace/mmfold/src/ViennaRNA/cofold.h:63: warning: argument 'sequence' of command @param is not found in the argument list of vrna_cofold(const char *string, char *structure)
+/home/milad/workspace/mmfold/src/ViennaRNA/cofold.h:63: warning: The following parameters of vrna_cofold(const char *string, char *structure) are not documented:
+  parameter 'string'
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:127: warning: argument 'FEA' of command @param is not found in the argument list of vrna_pf_dimer_probs(double FAB, double FA, double FB, vrna_plist_t *prAB, const vrna_plist_t *prA, const vrna_plist_t *prB, int Alength, const vrna_exp_param_t *exp_params)
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:127: warning: argument 'FEB' of command @param is not found in the argument list of vrna_pf_dimer_probs(double FAB, double FA, double FB, vrna_plist_t *prAB, const vrna_plist_t *prA, const vrna_plist_t *prB, int Alength, const vrna_exp_param_t *exp_params)
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:127: warning: The following parameters of vrna_pf_dimer_probs(double FAB, double FA, double FB, vrna_plist_t *prAB, const vrna_plist_t *prA, const vrna_plist_t *prB, int Alength, const vrna_exp_param_t *exp_params) are not documented:
+  parameter 'FA'
+  parameter 'FB'
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:154: warning: argument 'FEAB' of command @param is not found in the argument list of vrna_pf_dimer_concentrations(double FcAB, double FcAA, double FcBB, double FEA, double FEB, const double *startconc, const vrna_exp_param_t *exp_params)
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:154: warning: argument 'FEAA' of command @param is not found in the argument list of vrna_pf_dimer_concentrations(double FcAB, double FcAA, double FcBB, double FEA, double FEB, const double *startconc, const vrna_exp_param_t *exp_params)
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:154: warning: argument 'FEBB' of command @param is not found in the argument list of vrna_pf_dimer_concentrations(double FcAB, double FcAA, double FcBB, double FEA, double FEB, const double *startconc, const vrna_exp_param_t *exp_params)
+/home/milad/workspace/mmfold/src/ViennaRNA/part_func_co.h:154: warning: The following parameters of vrna_pf_dimer_concentrations(double FcAB, double FcAA, double FcBB, double FEA, double FEB, const double *startconc, const vrna_exp_param_t *exp_params) are not documented:
+  parameter 'FcAB'
+  parameter 'FcAA'
+  parameter 'FcBB'
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:396: warning: The following parameters of get_alipf_arrays(short ***S_p, short ***S5_p, short ***S3_p, unsigned short ***a2s_p, char ***Ss_p, FLT_OR_DBL **qb_p, FLT_OR_DBL **qm_p, FLT_OR_DBL **q1k_p, FLT_OR_DBL **qln_p, short **pscore) are not documented:
+  parameter 'pscore'
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:279: warning: explicit link request to 'vrna_md_t.nc_fact' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:63: warning: argument 'sequences' of command @param is not found in the argument list of vrna_alifold(const char **ssequences, char *structure)
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:63: warning: The following parameters of vrna_alifold(const char **ssequences, char *structure) are not documented:
+  parameter 'ssequences'
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:90: warning: argument 'sequences' of command @param is not found in the argument list of vrna_circalifold(const char **ssequences, char *structure)
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:90: warning: The following parameters of vrna_circalifold(const char **ssequences, char *structure) are not documented:
+  parameter 'ssequences'
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:135: warning: argument 'sequences' of command @param is not found in the argument list of vrna_pf_alifold(const char **strings, char *structure, vrna_plist_t **pl)
+/home/milad/workspace/mmfold/src/ViennaRNA/alifold.h:135: warning: The following parameters of vrna_pf_alifold(const char **strings, char *structure, vrna_plist_t **pl) are not documented:
+  parameter 'strings'
+/home/milad/workspace/mmfold/src/ViennaRNA/mfe.h:89: warning: explicit link request to 'VRNA_OPTION_WINDOW' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/mfe.h:99: warning: explicit link request to 'VRNA_OPTION_WINDOW' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/mfe.h:118: warning: explicit link request to 'VRNA_OPTION_WINDOW' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/mfe.h:128: warning: explicit link request to 'VRNA_OPTION_WINDOW' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/2Dpfold.h:89: warning: argument 'vars' of command @param is not found in the argument list of vrna_pbacktrack_TwoD(vrna_fold_compound_t *vc, int d1, int d2)
+/home/milad/workspace/mmfold/src/ViennaRNA/2Dpfold.h:89: warning: The following parameters of vrna_pbacktrack_TwoD(vrna_fold_compound_t *vc, int d1, int d2) are not documented:
+  parameter 'vc'
+/home/milad/workspace/mmfold/src/ViennaRNA/2Dpfold.h:111: warning: argument 'vars' of command @param is not found in the argument list of vrna_pbacktrack5_TwoD(vrna_fold_compound_t *vc, int d1, int d2, unsigned int length)
+/home/milad/workspace/mmfold/src/ViennaRNA/2Dpfold.h:111: warning: The following parameters of vrna_pbacktrack5_TwoD(vrna_fold_compound_t *vc, int d1, int d2, unsigned int length) are not documented:
+  parameter 'vc'
+/home/milad/workspace/mmfold/src/ViennaRNA/constraints.h:321: warning: explicit link request to 'VRNA_CONSTRAINT_CONTEXT_EXT_LOOP_ENC' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/constraints.h:658: warning: explicit link request to 'VRNA_CONSTRAINT_CONTEXT_ENFORCE' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/constraints.h:837: warning: The following parameters of vrna_sc_add_SHAPE_zarringhalam(vrna_fold_compound_t *vc, const double *reactivities, double b, double default_value, const char *shape_conversion, unsigned int options) are not documented:
+  parameter 'default_value'
+  parameter 'shape_conversion'
+/home/milad/workspace/mmfold/src/ViennaRNA/perturbation_fold.h:88: warning: The following parameters of vrna_sc_minimize_pertubation(vrna_fold_compound_t *vc, const double *q_prob_unpaired, int objective_function, double sigma_squared, double tau_squared, int algorithm, int sample_size, double *epsilon, double initialStepSize, double minStepSize, double minImprovement, double minimizerTolerance, progress_callback callback) are not documented:
+  parameter 'initialStepSize'
+  parameter 'minStepSize'
+  parameter 'minImprovement'
+  parameter 'minimizerTolerance'
+/home/milad/workspace/mmfold/src/ViennaRNA/constraints.h:904: warning: argument 'data' of command @param is not found in the argument list of vrna_sc_add_f(vrna_fold_compound_t *vc, vrna_callback_sc_energy *f)
+/home/milad/workspace/mmfold/src/ViennaRNA/constraints.h:939: warning: argument 'data' of command @param is not found in the argument list of vrna_sc_add_exp_f(vrna_fold_compound_t *vc, vrna_callback_sc_exp_energy *exp_f)
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:620: warning: explicit link request to 'VRNA_OPTION_WINDOW' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/data_structures.h:629: warning: explicit link request to 'VRNA_OPTION_WINDOW' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/dp_matrices.h:337: warning: explicit link request to 'VRNA_OPTION_HYBRID' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/dp_matrices.h:347: warning: explicit link request to 'VRNA_OPTION_HYBRID' could not be resolved
+/home/milad/workspace/mmfold/src/ViennaRNA/findpath.h:76: warning: argument 'struc1' of command @param is not found in the argument list of vrna_path_findpath(vrna_fold_compound_t *vc, const char *s1, const char *s2, int maxkeep)
+/home/milad/workspace/mmfold/src/ViennaRNA/findpath.h:76: warning: argument 'struc2' of command @param is not found in the argument list of vrna_path_findpath(vrna_fold_compound_t *vc, const char *s1, const char *s2, int maxkeep)
+/home/milad/workspace/mmfold/src/ViennaRNA/findpath.h:76: warning: argument 'max' of command @param is not found in the argument list of vrna_path_findpath(vrna_fold_compound_t *vc, const char *s1, const char *s2, int maxkeep)
+/home/milad/workspace/mmfold/src/ViennaRNA/findpath.h:76: warning: The following parameters of vrna_path_findpath(vrna_fold_compound_t *vc, const char *s1, const char *s2, int maxkeep) are not documented:
+  parameter 's1'
+  parameter 's2'
+  parameter 'maxkeep'
+/home/milad/workspace/mmfold/src/ViennaRNA/string_utils.h:83: warning: The following parameters of vrna_hamming_distance_bound(const char *s1, const char *s2, int n) are not documented:
+  parameter 'n'
+/home/milad/workspace/mmfold/src/ViennaRNA/file_formats.h:33: warning: The following parameters of vrna_file_helixlist(const char *seq, const char *db, float energy, FILE *file) are not documented:
+  parameter 'energy'
+/home/milad/workspace/mmfold/src/ViennaRNA/plot_layouts.h:66: warning: unable to resolve reference to `bruccoleri_88' for \ref command
