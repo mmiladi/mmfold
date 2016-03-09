@@ -1,41 +1,212 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Title</title>
+    <title>RNA Dotplots, McCaskill and Locality</title>
     <meta charset="utf-8">
     <style>
+       @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
       @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
-      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
-      body { font-family: 'Droid Serif'; }
+      body {
+        font-family: 'Droid Serif';
+      }
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
-        font-weight: normal;
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .gray { color: #777; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+
+           /* Two-column layout */
+      .my-left-column {
+
+        width: 70%;
+        float: left;
+      }
+       
+      .my-right-column {
+        color: #888;
+        width: 15%;
+        float: right;
+        height: 92%;
+
+        padding-top: 1em;
+      }
+       .my-right-column h2:last-of-type, .my-right-column h3:last-child {
+          color: #001;
+        }
     </style>
   </head>
   <body>
     <textarea id="source">
-
-class: center, middle
+name: inverse
+layout: true
+class: center, middle, inverse
 
 # RNA Dotplots, 
 # McCaskill 
 and Locality
-
 ---
 layout: false
-.left-column[
-  ## McCaskill
+
+.center[Probability of an structure in the ensemble]
+.center[![](prob-vis.svg)]
+- BW:
+     - Boltzmann Weight
+     - Exponential function  => exponential scale behaviors!
+
+- Z:  
+     - Partition function
+     - Sum of the Boltzmann weights for the entire ensemble
+---
+layout: false
+.my-left-column[.center[##McCaskill, 1990, ]
+
+
+  For a given sequence, efficient methods for: 
+  1. **partition function (Z)**  
+    - Z(i,j) 
+    - For all sub-sequences
+        
+  2. **probability of an individual base-pair** in ensemble 
+      - p(i,j)   
+      - For all possible pairs
+
+  3. Visualizing all base-pair probabilities as **dot plot**
+      - Area(i,j) = p(i,j) . Unit-Area
+
 ]
-.right-column[Efficient Partition Function Calculation  .right[<img align="top" src="Z.png"  width="200" >] ]
+.my-right-column[<img align="top" src="john_s_maccaskill_young.jpeg"  width="70" > 
+
+ Z(1,72)=-25.45 kcal/mol
 
 
+##### p(3,68)=0.9
+
+
+![](X70810.2.svg)
+]
+
+<!-- <img align="top" src="Z.png"  width="200" > -->
 
 ---
-# Agend 
+###.center[Dot plot]
+###Advantages:
+1. A good overview of **high** probable base-pairs
+
+2. Great help to detect the **second** probable structure. 
+   - Ribo-switch/bistable RNAs for example
+
+3. .gray["Integration Test"] <img align="top" src="emoji.jpg"  width="22" >
+   - .gray[For the new comers to the field of RNA-bioinf ]
+
+  .center[![](X70810.2-annotated.svg)]
+---
+
+###.center[Dot plot]
+###Limitation:
+
+---
+# Agenda
 
 1. Introduction
 2. Deep-dive
