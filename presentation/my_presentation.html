@@ -151,7 +151,7 @@ layout: false
 
 ## RNA Dotplots, 
 ## McCaskill 
-### and the Locality Problem
+### and the curse of Locality
 ]
 ---
 layout: false
@@ -165,12 +165,13 @@ layout: false
 - Z:  
      - Partition function
      - Sum of the Boltzmann weights for the entire ensemble
+
 ---
+
 layout: false
 .my-left-column[.center[##McCaskill, 1990, ]
 
-
-  For a given sequence, efficient methods for: 
+  - For a given sequence, efficient methods for: 
   1. **partition function (Z)**  
     - Z(i,j) 
     - For all sub-sequences
@@ -181,17 +182,37 @@ layout: false
 
   3. Visualizing all base-pair probabilities as **dot plot**
       - Area(i,j) = p(i,j) . Unit-Area
-
+  
 ]
-.my-right-column[<img align="top" src="john_s_maccaskill_young.jpeg"  width="70" > 
+.my-right-column[
+<img align="top" src="john_s_maccaskill_young.jpeg"  width="70" > 
 
  Z(1,72)=-25.45 kcal/mol
 
 ##### p(3,68)=0.9
+
+![](X70810.2.svg)
 ]
 
+---
+
+layout: false
+.my-left-column[.center[##McCaskill, 1990, ]
+###Based on Turner energy model
+###No heuristics and approximation in the computations!
+]
+.my-right-column[
+<img align="top" src="john_s_maccaskill_young.jpeg"  width="70" > 
+
+ Z(1,72)=-25.45 kcal/mol
+
+##### p(3,68)=0.9
+
+![](X70810.2.svg)
+]
 
 ---
+
 ###.center[Dot plot, 1]
 ###Advantages:
 1. An excellent overview of **high** probable base-pairs
@@ -210,45 +231,26 @@ layout: false
    - .gray[For the new comers in the field of RNA-bioinf ]
 
   .center[![](X70810.2-annotated.svg)]
+  
 ---
 
-###.center[Fixed medium size and the Human perception, 1 ]
-- tRNA
-.center[![](X70810.2_medium.svg)]
-<!-- ![](X70810.2_scaling_problem.svg) -->
----
-###.center[Fixed medium size and the Human perception, 2 ]
-- tRNA + context
-<!-- ![](X70810.2_medium.svg) -->
-.center[![](X70810.2_scaling_problem.svg)]
----
-###.center[Fixed medium size and the Human perception, 3 ]
+
+###.center[Plotting medium has fixed size ]
 - Right plot is only zoomed out, exact same probabilities as left
+- It is hard for human perception to not ignore the small dots.
 
 ![](X70810.2_medium.svg)
 ![](X70810.2_scaling_problem.svg)
 
 ---
 ###.center[How low are the low probabilities? ]
-.center[By increasing the sequence lenght => ]
- 
-.center[The dot plot converges to the  **"dot"** plot! ]
+
 
 .center[![](X70810.2_scaling_problem.svg)]
 
----
-### Dot plot: The evolution, 1
+ ---
 
-.center[![](dotplot-evolution_1.svg)]
-
----
-### Dot plot: The evolution, 2
-
-.small[.footnote[Years of the McCaskill's pictures are not exact :)]]
-.center[![](dotplot-evolution.svg)]
-
----
-### Dot plot: The evolution, 2
+ ### Dot plot: The evolution
 
 .small[.footnote[*Years of the McCaskill's pictures are not exact :)]]
 
@@ -257,8 +259,11 @@ layout: false
 *Check (CHURKIN et al., 2013) for two other alternatives
 
 ---
-## How about this one?
 .center[![](sample_trna2_bp_probs.svg)]
+
+---
+.center[![](sample_trna2_bp_probs_inverse.svg)]
+
 
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
