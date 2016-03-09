@@ -231,32 +231,30 @@ layout: false
    - .gray[For the new comers in the field of RNA-bioinf ]
 
   .center[![](X70810.2-annotated.svg)]
-  
----
 
+---
+ ### Dot plot: The evolution
+
+.small[.footnote[*McCaskill's picture taken years are not exact :)]]
+
+.center[![](dotplot-evolution.svg)]
+
+*(CHURKIN et al., 2013) proposes an alternative for bistable RNAs
+
+*RNAstruct provides a confusing colored dot-plot
+
+---
 
 ###.center[Plotting medium has fixed size ]
 - Right plot is only zoomed out, exact same probabilities as left
-- It is hard for human perception to not ignore the small dots.
+- The Human perception mainly ignores the small dots.
 
 ![](X70810.2_medium.svg)
 ![](X70810.2_scaling_problem.svg)
 
 ---
 ###.center[How low are the low probabilities? ]
-
-
 .center[![](X70810.2_scaling_problem.svg)]
-
- ---
-
- ### Dot plot: The evolution
-
-.small[.footnote[*Years of the McCaskill's pictures are not exact :)]]
-
-.center[![](dotplot-evolution.svg)]
-
-*Check (CHURKIN et al., 2013) for two other alternatives
 
 ---
 .center[![](sample_trna2_bp_probs.svg)]
@@ -264,7 +262,86 @@ layout: false
 ---
 .center[![](sample_trna2_bp_probs_inverse.svg)]
 
+---
+### .center[Other limitations ]
 
+- Basepair probabilities are independent of each other.
+
+- Therefor no explicit relationship between cells can be encoded!
+
+- No one knows which stems exist together.
+    - Exception is for the case of crossing base-pairs.
+
+.center[![](X70810.2-annotated.svg)]
+
+---
+layout: false
+
+.center[
+
+### .gray[RNA Dotplots, ]
+### .gray[McCaskill ]
+## and the curse of Locality
+]
+
+---
+.center[Let's play a game with this cute tRNA.]
+
+- Extending from both ends
+- Di-Nucleotide shuffled genomic context
+- tRNA position is according to a normal distribution
+- On average close to the center of the context 
+.center[![](X70810.2_extend.svg)]
+
+
+---
+.center[Probability of the base-pair, by global folding]
+- Each time the context is re-shuffled and re-sampled
+![](tRNA-extend.svg)
+
+---
+.center[Probability of the selected base-pair, by global folding]
+- Each time the context is re-shuffled and re-sampled
+![](tRNA-Log--extend.svg)
+
+---
+<!-- .small[.footnote[*And always hides]] -->
+Well this is the classic local folding problem
+ 
+1. Lfold (2004): 
+    * Ignore any possible base-pair longer than L.
+    
+.center[![](Lfold.svg)]
+
+2. RNAplFold(2006): 
+    * A follow-up: Enough to believe Lfold was not good enough  <img align="top" src="emoji.jpg"  width="22" >
+    * Windowing:
+        * Pragmatic
+        * Usually works 
+        * Can be found in the pocket of any bioinformatician
+
+  
+
+---
+We have concisely showed that: (Sita, Daniel, Mathias, et al. 2012)
+
+- Parameterization is very crucial to have accurate RNAplFold
+ 
+####Tip: 
+
+*Strong parameter dependency*:
+- Usually a good sign that a tool does not work as supposed to do so.
+
+---
+.center[The second game: Splitting]
+.center[![](X70810.2_split.svg)]
+
+---
+.center[Probability of the selected base-pair, by global folding]
+- Each time the context is re-shuffled and re-sampled
+![](tRNA-split.svg)
+
+---
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
     </script>
