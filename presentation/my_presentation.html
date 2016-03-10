@@ -285,36 +285,40 @@ layout: false
 ]
 
 ---
+.center[Example of a  cute tRNA!]
+![](X70810.2_centroid.svg)
+![](X70810.2_heatmap.svg)
+
+---
 .center[Let's play a game with this cute tRNA.]
 
-- Extending from both ends
-- Di-Nucleotide shuffled genomic context
-- tRNA position is according to a normal distribution
-- On average close to the center of the context 
+  - Extend it from both ends
+  - Di-Nucleotide shuffled genomic context
+  - tRNA position is according to a normal distribution
+  - On average close to the center of the context 
 .center[![](X70810.2_extend.svg)]
 
 
 ---
-.center[Probability of the base-pair, by global folding]
+.center[Probability of the selected base-pair, by global folding]
 - Each time the context is re-shuffled and re-sampled
-![](tRNA-extend.svg)
+![](tRNA-extend.svg) ![](X70810.2_extend_small.svg)
 
 ---
 .center[Probability of the selected base-pair, by global folding]
 - Each time the context is re-shuffled and re-sampled
-![](tRNA-Log--extend.svg)
+![](tRNA-Log--extend.svg) ![](X70810.2_extend_small.svg)
 
 ---
 <!-- .small[.footnote[*And always hides]] -->
-Well this is the classic local folding problem
+.center[Well this is the classic local folding problem]
  
-1. Lfold (2004): 
-    * Ignore any possible base-pair longer than L.
-    
+1. *Lfold* (2004): 
+    * Ignore any possible base-pair longer than L.    
 .center[![](Lfold.svg)]
 
-2. RNAplFold(2006): 
-    * A follow-up: Enough to believe Lfold was not good enough  <img align="top" src="emoji.jpg"  width="22" >
+2. *RNAplFold*(2006): 
+    * A follow-up: Enough to believe *Lfold* was not good enough  <img align="top" src="emoji.jpg"  width="22" >
     * Windowing:
         * Pragmatic
         * Usually works 
@@ -323,15 +327,38 @@ Well this is the classic local folding problem
   
 
 ---
-We have concisely showed that: (Sita, Daniel, Mathias, et al. 2012)
+We, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
 
 - Parameterization is very crucial to have accurate RNAplFold
  
-####Tip: 
+*Strong parameter dependency* of a tool:
+- Can be a sign that it does not (generally) function as supposed to do so.
 
-*Strong parameter dependency*:
-- Usually a good sign that a tool does not work as supposed to do so.
+We have also shown that: 
+- The boundaries are wrongly predicted
 
+
+
+---
+We, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
+
+- Parameterization is very crucial to have accurate RNAplFold
+ 
+*Strong parameter dependency* of a tool:
+- Can be a sign that it does not (generally) function as supposed to do so.
+
+We have also shown that: 
+- The boundaries are wrongly predicted
+
+.center[### Got boring? 
+### Let's play another game]
+
+---
+<!-- In practice:
+- Beyond hairpin, RNAplFold approach does not predict reliable complex structures
+- Welcome to the world of ~~structural~~ hairpinal bioinformatics
+.footnote[Quote from Sita, our plFold expert :) ]
+ -->
 ---
 .center[The second game: Splitting]
 .center[![](X70810.2_split.svg)]
@@ -339,7 +366,16 @@ We have concisely showed that: (Sita, Daniel, Mathias, et al. 2012)
 ---
 .center[Probability of the selected base-pair, by global folding]
 - Each time the context is re-shuffled and re-sampled
-![](tRNA-split.svg)
+![](tRNA-split.svg) ![](X70810.2_split_small.svg)
+
+---
+.center[The second game, next round: Splitting]
+.center[![](X70810.2_stem_split.svg)]
+---
+.center[Probability of the selected base-pair, by global folding]
+- Each time the context is re-shuffled and re-sampled
+
+![](stem-split.svg) ![](X70810.2_stem_split_small.svg)
 
 ---
     </textarea>
