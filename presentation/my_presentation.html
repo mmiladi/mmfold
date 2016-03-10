@@ -257,9 +257,11 @@ layout: false
 .center[![](X70810.2_scaling_problem.svg)]
 
 ---
+.center[A simple alternative]
 .center[![](sample_trna2_bp_probs.svg)]
 
 ---
+.center[A simple alternative]
 .center[![](sample_trna2_bp_probs_inverse.svg)]
 
 ---
@@ -319,7 +321,7 @@ layout: false
 
 2. *RNAplFold*(2006): 
     * A follow-up: Enough to believe *Lfold* was not good enough  <img align="top" src="emoji.jpg"  width="22" >
-    * Windowing:
+    * *Windowing*:
         * Pragmatic
         * Usually works 
         * Can be found in the pocket of any bioinformatician
@@ -327,7 +329,7 @@ layout: false
   
 
 ---
-We, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
+Our group, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
 
 - Parameterization is very crucial to have accurate RNAplFold
  
@@ -335,12 +337,12 @@ We, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that:
 - Can be a sign that it does not (generally) function as supposed to do so.
 
 We have also shown that: 
-- The boundaries are wrongly predicted
+- The borders of windows are biased
 
 
 
 ---
-We, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
+Our group, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
 
 - Parameterization is very crucial to have accurate RNAplFold
  
@@ -348,17 +350,33 @@ We, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that:
 - Can be a sign that it does not (generally) function as supposed to do so.
 
 We have also shown that: 
-- The boundaries are wrongly predicted
+- The boundaries are biased
+
+In practice:
+- plFold barely predicts more than simple hairpins.  .small[(Quoted from Sita)]
+
+
+---
+Our group, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
+
+- Parameterization is very crucial to have accurate RNAplFold
+ 
+*Strong parameter dependency* of a tool:
+- Can be a sign that it does not (generally) function as supposed to do so.
+
+We have also shown that: 
+- The boundaries are biased
+
+In practice:
+- plFold barely predicts more than simple hairpins. .small[(Quoted from Sita)]
+
+.center[Welcome to the world of hairpins!]
+.center[![](hairpin-minion.svg)]
+---
 
 .center[### Got boring? 
 ### Let's play another game]
 
----
-<!-- In practice:
-- Beyond hairpin, RNAplFold approach does not predict reliable complex structures
-- Welcome to the world of ~~structural~~ hairpinal bioinformatics
-.footnote[Quote from Sita, our plFold expert :) ]
- -->
 ---
 .center[The second game: Splitting]
 .center[![](X70810.2_split.svg)]
@@ -369,7 +387,7 @@ We have also shown that:
 ![](tRNA-split.svg) ![](X70810.2_split_small.svg)
 
 ---
-.center[The second game, next round: Splitting]
+.center[The second game, next round]
 .center[![](X70810.2_stem_split.svg)]
 ---
 .center[Probability of the selected base-pair, by global folding]
@@ -378,6 +396,59 @@ We have also shown that:
 ![](stem-split.svg) ![](X70810.2_stem_split_small.svg)
 
 ---
+### .center[A nightmare..]
+* No matter how long a sequence is
+* No matter what is inside
+* Few compatible basepairs make an strong prediction!
+
+---
+### .center[A nightmare..]
+* No matter how long a sequence is
+* No matter what is inside
+* Few compatible basepairs make an strong prediction!
+
+### .center[What is missing?]
+Turner?
+* Turner energy model should not be that much mad
+
+McCaskill?
+* McCaskill algorithm has no heuristics or simplification..
+
+---
+### .center[A nightmare..]
+* No matter how long a sequence is
+* No matter what is inside
+* Few compatible basepairs make an strong prediction!
+
+### .center[What is missing?]
+Turner?
+* Turner energy model should not be that much mad
+
+McCaskill?
+* McCaskill algorithm has no heuristics or simplification..
+
+### .center[Let's google it!]
+
+---
+Google
+---
+### .center[What we have been missing?]
+#### The concept of noise and context in nowadays genomic biology
+#### The fact that McCaskill's mindset was chemistry, not genome crawling
+![](sample_stem_dp.svg)
+---
+---
+### .center[Can we solve it?]
+### Calculating the base-pair probabilities with in inside algorithm
+
+1. Base case: P_Hairpin(i,j)
+2. Inner Loop: P_kl(ij| kl is closing ij )
+3. Multiloop: coming soon..
+
+.center[<img align="bottom" src="despicable-me.jpg"  width="600" > ]
+
+
+
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
     </script>
