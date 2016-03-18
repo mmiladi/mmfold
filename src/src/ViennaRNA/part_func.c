@@ -220,43 +220,81 @@ vrna_pf( vrna_fold_compound_t *vc,
                                     break;
     }
 
-    
+
     /* call user-defined recursion status callback function */
     if(vc->stat_cb)
-      vc->stat_cb(vc, VRNA_STATUS_PF_POST);
+    	vc->stat_cb(vc, VRNA_STATUS_PF_POST);
+
+    PRIVATE char msg[128];
+    snprintf(msg, 127, "vrna_pf: md->compute_bpp=%d md->compute_bpp_mm=%d\n", md->compute_bpp, md->compute_bpp_mm);
+    vrna_message_warning(msg);
+
+    if ( md->compute_bpp_mm && md->compute_bpp ) {
+    	printf("McCaskill and mm bpp switches cannot both be on. (compute_bpp_mm and compute_bpp)\n");
+    }
 
     /* calculate base pairing probability matrix (bppm)  */
-    if(md->compute_bpp){
-      switch(vc->type){
-        case VRNA_VC_TYPE_ALIGNMENT:  alipf_create_bppm(vc, structure);
-                                      break;
+    if(md->compute_bpp){ //TODO: remove else and keep only one on, resolving allocation error is needed
+    	switch(vc->type){
+    	case VRNA_VC_TYPE_ALIGNMENT:  alipf_create_bppm(vc, structure);
+    	break;
 
-        case VRNA_VC_TYPE_SINGLE:     /* fall through */
+    	case VRNA_VC_TYPE_SINGLE:     /* fall through */
 
-        default:                      pf_create_bppm(vc, structure);
-                                      break;
-      }
+    	default:                      pf_create_bppm(vc, structure);
+    	break;
+    	}
+
 
 #ifdef  VRNA_BACKWARD_COMPAT
 
-      /*
-      *  Backward compatibility:
-      *  This block may be removed if deprecated functions
-      *  relying on the global variable "pr" vanish from within the package!
-      */
-      pr = matrices->probs;
-      /*
+    	/*
+    	 *  Backward compatibility:
+    	 *  This block may be removed if deprecated functions
+    	 *  relying on the global variable "pr" vanish from within the package!
+    	 */
+    	pr = matrices->probs;
+    	/*
        {
         if(pr) free(pr);
         pr = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL) * ((n+1)*(n+2)/2));
         memcpy(pr, probs, sizeof(FLT_OR_DBL) * ((n+1)*(n+2)/2));
       }
-      */
+    	 */
 
 #endif
 
     }
 
+    /* calculate base pairing probability matrix (bppm)  */
+      if (md->compute_bpp_mm){
+      	switch(vc->type){
+      	case VRNA_VC_TYPE_ALIGNMENT:  alipf_create_bppm(vc, structure);
+      	break;
+      	case VRNA_VC_TYPE_SINGLE:     /* fall through */
+
+      	default:                      mm_pf_create_bppm(vc, structure); // mmfold case
+      	break;
+      	}
+  #ifdef  VRNA_BACKWARD_COMPAT
+
+      	/*
+      	 *  Backward compatibility:
+      	 *  This block may be removed if deprecated functions
+      	 *  relying on the global variable "pr" vanish from within the package!
+      	 */
+      	pr = matrices->probs; // TODO: What mmfold should do with this?
+      	/*
+         {
+          if(pr) free(pr);
+          pr = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL) * ((n+1)*(n+2)/2));
+          memcpy(pr, probs, sizeof(FLT_OR_DBL) * ((n+1)*(n+2)/2));
+        }
+      	 */
+
+  #endif
+
+      }
     if (md->backtrack_type=='C')
       Q = matrices->qb[vc->iindx[1]-n];
     else if (md->backtrack_type=='M')
@@ -1304,7 +1342,7 @@ pf_create_bppm( vrna_fold_compound_t *vc,
 PUBLIC void
 mm_pf_create_bppm( vrna_fold_compound_t *vc,
                 char *structure){
-
+  vrna_message_warning("Calculating mm basepair probabilities\n");
   int n, i,j,k,l, ij, kl, ii, u1, u2, ov=0;
   unsigned char type, type_2, tt;
   FLT_OR_DBL  temp, Qmax=0, prm_MLb;
@@ -1379,8 +1417,10 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
   max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
   sequence      = vc->sequence;
 
+  vrna_message_warning("S1\n");
 
   if((S != NULL) && (S1 != NULL)){
+	  vrna_message_warning("S2\n");
 
     expMLclosing  = pf_params->expMLclosing;
     with_gquad    = pf_params->model_details.gquad;
@@ -1394,6 +1434,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       it introduces only little memory overhead, e.g. ~450MB for
       sequences of length 30,000
     */
+    vrna_message_warning("S3\n");
+
     char *hc_local = (char *)vrna_alloc(sizeof(char) * (((n + 1) * (n + 2)) /2 + 2));
     for(i = 1; i <= n; i++)
       for(j = i; j <= n; j++)
@@ -1405,26 +1447,36 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
     Qmax=0;
 
-    /* 1. exterior pair i,j and initialization of pr array */
-    // TODO: Modify it to hairpin, started..
+    /* 1. hair pair i,j and initialization of pr array */
     if(circular){
     	mm_pf_error();
     } /* end if(circular)  */
     else {
+
       for (i=1; i<=n; i++) {
+    	  printf("S6 %d\n", i);
+//          for (j=i; j<=MIN2(i+turn,n); j++)
         for (j=i; j<=n; j++)  // TODO:do we need max or just n?
-        	mm_probs[my_iindx[i]-j] = 0.;
+        {
+        	probs[my_iindx[i]-j] = 0.;
+        }
+        vrna_message_warning("S7\n");
 
         for (j=i+turn+1; j<=n; j++) {
+        	  vrna_message_warning("S8\n");
+
           ij = my_iindx[i]-j;
           if(hc_local[ij] & VRNA_CONSTRAINT_CONTEXT_HP_LOOP){ // correct check?
+        	  vrna_message_warning("S9\n");
+
             type      = (unsigned char)ptype[jindx[j] + i];
 //            probs[ij] = q1k[i-1]*qln[j+1]/q1k[n];
 //            probs[ij] *= exp_E_ExtLoop(type, (i>1) ? S1[i-1] : -1, (j<n) ? S1[j+1] : -1, pf_params);
             //TODO: Where is Qb matrix in divisions and multiplications??
             // TODO: I need to divide by Qb(ij)
-            mm_probs[ij] = mc_probs[ij] *
+            probs[ij] = mc_probs[ij] *  // here we need mccaskill prob for initializing the hairpin case
             		exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params);
+
             		//TODO: IMPORTANT: Hopefully the sequence is passed correctly in above
 
 //         Example of call:   E_Hairpin(j-i-1, type, S1[i+1], S1[j-1], string+i-1, P);
@@ -1433,16 +1485,22 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
 
             if(sc){
+            	  vrna_message_warning("S10\n");
+
               if(sc->exp_f){
-            	  mm_probs[ij] *= sc->exp_f(1, n, i, j, VRNA_DECOMP_EXT_STEM_OUTSIDE, sc->data);
+            	  probs[ij] *= sc->exp_f(1, n, i, j, VRNA_DECOMP_EXT_STEM_OUTSIDE, sc->data);
               }
             }
-          } else
-        	  mm_probs[ij] = 0.;
+          } else {
+        	  vrna_message_warning("S11\n");
+
+        	  probs[ij] = 0.;
+          }
           
         }
       }
     } /* end if(!circular)  */
+    vrna_message_warning("SA1\n");
 
     for (l = n; l > turn + 1; l--) {
 
@@ -1468,11 +1526,11 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
               ij = my_iindx[i] - j;
               if(hc_local[ij] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP){
                 type = (unsigned char)ptype[jindx[j] + i];
-                if(mm_probs[ij] > 0){
+                if(probs[ij] > 0){
 //                  tmp2 =  probs[ij]
 //                          * scale[u1 + u2 + 2]  // This should be ok, right?
 //                          * exp_E_IntLoop(u1, u2, type, type_2, S1[i+1], S1[j-1], S1[k-1], S1[l+1], pf_params);
-                  tmp2 =  mm_probs[ij]
+                  tmp2 =  probs[ij]
                           * (1/scale[u1 + u2 + 2])  // TODO: What is scale?? IMPORTANT TO CHECK THIS
                           / exp_E_IntLoop(u2, u1, type_2, type, S1[k-1], S1[l+1], S1[i+1], S1[j-1],  pf_params);
 

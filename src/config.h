@@ -51,7 +51,7 @@
 #define HAVE_POW 1
 
 /* If available, contains the Python version number currently in use. */
-#define HAVE_PYTHON "2.7"
+/* #undef HAVE_PYTHON */
 
 /* Define to 1 if your system has a GNU libc compatible `realloc' function,
    and to 0 otherwise. */
@@ -172,10 +172,10 @@
 #define WITH_JSON_SUPPORT 1
 
 /* Create the perl interface to RNAlib */
-#define WITH_PERL_INTERFACE 1
+/* #undef WITH_PERL_INTERFACE */
 
 /* Create the python interface to RNAlib */
-#define WITH_PYTHON_INTERFACE 1
+/* #undef WITH_PYTHON_INTERFACE */
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

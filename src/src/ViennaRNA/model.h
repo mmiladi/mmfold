@@ -124,6 +124,12 @@ typedef struct vrna_md_s  vrna_md_t;
 #define VRNA_MODEL_DEFAULT_COMPUTE_BPP    1
 
 /**
+ *  @brief  Default model behavior with regards to computing base MM pair probabilities
+ *  @see    #vrna_md_t.compute_bpp, vrna_md_defaults_reset(), vrna_md_set_default()
+ */
+#define VRNA_MODEL_DEFAULT_COMPUTE_BPP_MM    0
+
+/**
  *  @brief  Default model behavior for the allowed maximum base pair span
  *  @see    #vrna_md_t.max_bp_span, vrna_md_defaults_reset(), vrna_md_set_default()
  */
@@ -224,6 +230,7 @@ struct vrna_md_s {
   int     backtrack;                    /**<  @brief  Specifies whether or not secondary structures should be backtraced */
   char    backtrack_type;               /**<  @brief  Specifies in which matrix to backtrack */
   int     compute_bpp;                  /**<  @brief  Specifies whether or not backward recursions for base pair probability (bpp) computation will be performed */
+  int     compute_bpp_mm;                  /**<  @brief  Specifies whether or not backward recursions for base pair probability (bpp) computation will be performed by mm algorithm */
   char    nonstandards[33];             /**<  @brief  contains allowed non standard bases */
   int     max_bp_span;                  /**<  @brief  maximum allowed base pair span */
 
@@ -537,12 +544,28 @@ void
 vrna_md_defaults_compute_bpp(int flag);
 
 /**
+ *  @brief  Set the default behavior for whether to compute MM base pair probabilities after partition function computation
+ *  @see vrna_md_defaults_reset(), vrna_md_set_default(), #vrna_md_t, #VRNA_MODEL_DEFAULT_COMPUTE_BPP
+ *  @param  flag  On/Off switch (0 = OFF, else = ON)
+ */
+void
+vrna_md_defaults_compute_bpp_mm(int flag);
+
+/**
  *  @brief  Get the default behavior for whether to compute base pair probabilities after partition function computation
  *  @see vrna_md_defaults_compute_bpp(), vrna_md_defaults_reset(), vrna_md_set_default(), #vrna_md_t, #VRNA_MODEL_DEFAULT_COMPUTE_BPP
  *  @return The global default settings that specify whether base pair probabilities are computed together with partition function
  */
 int
 vrna_md_defaults_compute_bpp_get(void);
+
+/**
+ *  @brief  Get the default behavior for whether to compute MM base pair probabilities after partition function computation
+ *  @see vrna_md_defaults_compute_bpp_mm(), vrna_md_defaults_reset(), vrna_md_set_default(), #vrna_md_t, #VRNA_MODEL_DEFAULT_COMPUTE_BPP
+ *  @return The global default settings that specify whether base pair probabilities are computed together with partition function
+ */
+int
+vrna_md_defaults_compute_bpp_mm_get(void);
 
 /**
  *  @brief  Set default maximal base pair span
@@ -789,6 +812,14 @@ extern int  energy_set;
  *  twice as fast. Default is 1.
  */
 extern int    do_backtrack;
+
+/**
+ *  @brief do MM backtracking, i.e. compute secondary structures or base pair probabilities
+ *
+ *  If 0, do not calculate pair probabilities in pf_fold(); this is about
+ *  twice as fast. Default is 1.
+ */
+extern int    do_backtrack_mm;  // TODO: This flag is only add to model.c. About other places  to change do not know yet!
 
 /**
  *  @brief A backtrack array marker for inverse_fold()

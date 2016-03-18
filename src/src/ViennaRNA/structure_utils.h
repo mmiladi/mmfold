@@ -225,6 +225,24 @@ vrna_plist_t *vrna_plist(const char *struc, float pr);
 vrna_plist_t *vrna_plist_from_probs(vrna_fold_compound_t *vc, double cut_off);
 
 /**
+ *  @brief Create a #vrna_plist_t from MM base pair probability matrix
+ *
+ *  The probability matrix provided via the #vrna_fold_compound_t is parsed
+ *  and all pair probabilities above the given threshold are used to create
+ *  an entry in the plist
+ *
+ *  The end of the plist is marked by sequence positions i as well as j
+ *  equal to 0. This condition should be used to stop looping over its
+ *  entries
+ *
+ *  @ingroup            pf_fold
+ *  @param[in]  vc      The fold compound
+ *  @param[in]  cutoff  The cutoff value
+ *  @return             A pointer to the plist that is to be created
+ */
+vrna_plist_t *vrna_plist_from_probs_mm(vrna_fold_compound_t *vc, double cut_off);
+
+/**
  *  @brief  Convert a list of base pairs into dot-bracket notation
  *
  *  @see vrna_plist()

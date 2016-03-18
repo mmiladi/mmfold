@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/home/milad/software/mmfold/lib/perl/5.18.2/auto/RNA'
+libdir='/usr/local/lib/perl/5.18.2/auto/RNA'

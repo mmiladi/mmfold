@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/home/milad/software/mmfold/lib/python2.7/site-packages/RNA'
+libdir='/usr/local/lib/python2.7/site-packages/RNA'

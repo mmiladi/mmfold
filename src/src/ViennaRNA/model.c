@@ -55,6 +55,7 @@ int     canonicalBPonly = VRNA_MODEL_DEFAULT_CANONICAL_BP;
 int     uniq_ML         = VRNA_MODEL_DEFAULT_UNIQ_ML;
 int     energy_set      = VRNA_MODEL_DEFAULT_ENERGY_SET;
 int     do_backtrack    = VRNA_MODEL_DEFAULT_COMPUTE_BPP;
+int     do_backtrack_mm = VRNA_MODEL_DEFAULT_COMPUTE_BPP_MM;
 char    backtrack_type  = VRNA_MODEL_DEFAULT_BACKTRACK_TYPE;
 char    *nonstandards   = (char *)0;
 int     max_bp_span     = VRNA_MODEL_DEFAULT_MAX_BP_SPAN;
@@ -226,6 +227,8 @@ vrna_md_defaults_reset(vrna_md_t *md_p){
   defaults.circ              = VRNA_MODEL_DEFAULT_CIRC;
   defaults.uniq_ML           = VRNA_MODEL_DEFAULT_UNIQ_ML;
   defaults.compute_bpp       = VRNA_MODEL_DEFAULT_COMPUTE_BPP;
+  defaults.compute_bpp_mm    = VRNA_MODEL_DEFAULT_COMPUTE_BPP_MM;
+
   defaults.backtrack         = VRNA_MODEL_DEFAULT_BACKTRACK;
   defaults.backtrack_type    = VRNA_MODEL_DEFAULT_BACKTRACK_TYPE;
   defaults.energy_set        = VRNA_MODEL_DEFAULT_ENERGY_SET;
@@ -253,6 +256,7 @@ vrna_md_defaults_reset(vrna_md_t *md_p){
     vrna_md_defaults_circ(md_p->circ);
     vrna_md_defaults_uniq_ML(md_p->uniq_ML);
     vrna_md_defaults_compute_bpp(md_p->compute_bpp);
+    vrna_md_defaults_compute_bpp_mm(md_p->compute_bpp_mm);
     vrna_md_defaults_backtrack(md_p->backtrack);
     vrna_md_defaults_backtrack_type(md_p->backtrack_type);
     vrna_md_defaults_energy_set(md_p->energy_set);
@@ -291,6 +295,7 @@ vrna_md_defaults_reset(vrna_md_t *md_p){
   uniq_ML         = defaults.uniq_ML;
   energy_set      = defaults.energy_set;
   do_backtrack    = defaults.compute_bpp;
+  do_backtrack_mm = defaults.compute_bpp_mm;
   backtrack_type  = defaults.backtrack_type;
   nonstandards    = defaults.nonstandards;
   max_bp_span     = defaults.max_bp_span;
@@ -534,10 +539,28 @@ vrna_md_defaults_compute_bpp(int flag){
     defaults.compute_bpp = 1;
 }
 
+PUBLIC void
+vrna_md_defaults_compute_bpp_mm(int flag){
+
+  if((flag >= 0) && (flag <= 2)){
+    defaults.compute_bpp_mm = flag;
+#ifdef VRNA_BACKWARD_COMPAT
+    do_backtrack_mm = flag;
+#endif
+  } else
+    defaults.compute_bpp_mm = 1;
+}
+
 PUBLIC int
 vrna_md_defaults_compute_bpp_get(void){
 
   return defaults.compute_bpp;
+}
+
+PUBLIC int
+vrna_md_defaults_compute_bpp_mm_get(void){
+
+  return defaults.compute_bpp_mm;
 }
 
 PUBLIC void
@@ -777,6 +800,7 @@ set_model_details(vrna_md_t *md){
     md->circ              = circ;
     md->uniq_ML           = uniq_ML;
     md->compute_bpp       = do_backtrack;
+    md->compute_bpp_mm    = do_backtrack_mm;
     md->backtrack         = VRNA_MODEL_DEFAULT_BACKTRACK;
     md->backtrack_type    = backtrack_type;
     md->energy_set        = energy_set;
