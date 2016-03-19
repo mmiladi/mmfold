@@ -1,4 +1,8 @@
 *.o
 *.?o
 *.??o
-
+*.m4
+*.lai
+RNA[a-zA-Z]*
+*ss.ps
+*dp.ps
