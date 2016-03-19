@@ -1341,12 +1341,19 @@ pf_create_bppm( vrna_fold_compound_t *vc,
   return;
 }
 
-
+//FLT_OR_DBL mm_pf_descale(int l) {
+//
+//}
 /* calculate base mm pairing probs */
 PUBLIC void
 mm_pf_create_bppm( vrna_fold_compound_t *vc,
                 char *structure){
   vrna_message_warning("Calculating mm basepair probabilities\n");
+#ifdef USE_FLOAT_PF
+  printf ("Using double float precision\n");
+#else
+  vrna_message_warning("Using single precision!\n");
+#endif
   int n, i,j,k,l, ij, kl, ii, u1, u2, ov=0;
   unsigned char type, type_2, tt;
   FLT_OR_DBL  temp, Qmax=0, prm_MLb;
@@ -1447,7 +1454,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     FLT_OR_DBL *prml   = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL)*(n+2));
 
     Qmax=0;
-
+    for (i=0; i<=50; i++) {
+    printf("scale[%d]=%.20f\n", i, scale[i]);
+    }
     /* 1. hair pair i,j and initialization of pr array */
     if(circular){
     	mm_pf_error();
@@ -1500,28 +1509,33 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       }
     } /* end if(!circular)  */
     vrna_message_warning("SA1\n");
-
-    for (l = n; l > turn + 1; l--) {
-
+    printf ("turn:%d", turn);
+    //TODO: I assume the turn/min-loop-length is the min number of unpaired based in a hairpin
+    int mysize;
+    for (mysize=turn; mysize<=n; mysize++) // TODO: All loop boundary MUST be revised
+    {
+    	for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
+    		l = k + mysize + 1;
       /* 2. bonding k,l as substem of 2:loop enclosed by i,j
        * 2.mm bonding k,l as enclosing 2:loop with substem i,j */
-      for(k = l - 1 -turn ; k >= 1;  k--){  //TODO  >=1 is fine?
+
     	printf("pil (k,l)==%d,%d\n", k, l);
         kl      = my_iindx[k]-l;
         type_2  = (unsigned char)ptype[jindx[l] + k];
-        type_2  = rtype[type_2];
+//        type_2  = rtype[type_2];  //TODO: ij reversed instead of kl, apparently innerone should be revresed, but MUST BE CHECKED
 
         if (qb[kl]==0.) continue;
-        if(hc_local[kl] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP_ENC){
+        if(hc_local[kl] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP_ENC)
+        {
 //          for(i = MAX2(1, k - MAXLOOP - 1); i <= k - 1; i++){
-            for(i = k+1; i < l-turn-1;  i++){ //Do we need -1?
+            for(i = k+1; i < l-turn;  i++){ //Do we need -1?
             u1 = i - k - 1; //TODO: change this
 //            if(hc_up_int[i+1] < u1) continue;
 
             for(j = i + turn + 1; j <= l-1; j++){  // Do we need less than l-1?
 //            printf("     (i,j)==%d,%d\n", i, j);
-
               u2 = l-j-1;
+
               if(hc_up_int[l+1] < u2) break; //TODO: change this
               ij = my_iindx[i] - j;
               if (qb[ij]==0.) {
@@ -1531,13 +1545,18 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
               if(hc_local[ij] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP){
                 type = (unsigned char)ptype[jindx[j] + i];
-
+                type  = rtype[type];  // TODO: This was added, not sure why, check type2 above
                 if(probs[ij] > 0){
+                    printf("     (i,j)==%d,%d\n", i, j);
+                    printf("      u1=%d,u2=%d\n", u1,u2);
 //                  tmp2 =  probs[ij]
 //                          * scale[u1 + u2 + 2]  // This should be ok, right?
 //                          * exp_E_IntLoop(u1, u2, type, type_2, S1[i+1], S1[j-1], S1[k-1], S1[l+1], pf_params);
                   FLT_OR_DBL scaled_inloop_energy = scale[u1 + u2 + 2] *
-                		  exp_E_IntLoop(u2, u1, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
+                		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
+                  printf("scaled_inloop_energy=%f * %f = %f\n", scale[u1 + u2 + 2] ,
+                		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params),
+                		  scaled_inloop_energy);
                   //TODO: VERY IMPORTANT: why i have to skip low min energies? Shouldn't qb compensate it?
                   FLT_OR_DBL MIN_INL_ENERGY = 1.0;  // TODO: What should this parameter be set??
                   if (scaled_inloop_energy < MIN_INL_ENERGY) {
@@ -1547,9 +1566,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                   tmp2 =  probs[ij]
                           /(scale[u1 + u2 + 2] * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))  // TODO: What is scale?? IMPORTANT TO CHECK THIS
                           * qb[kl]/qb[ij];
-                  printf ("       tmp2=%f / (%f) * %f / %f\n", probs[ij]
+                  printf ("       tmp2=%f / (%f) * (%f)\n", probs[ij]
                               , (scale[u1 + u2 + 2] * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))
-                              , qb[kl], qb[ij]
+                              , qb[kl]/qb[ij]
                                       );
                   printf ("     tmp2=%f\n", tmp2);
                   if(sc){ // This is only if we have constraints, so we don't need that. right?
@@ -1843,9 +1862,10 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
       /*  correct pairing probabilities for auxiliary base pairs from hairpin-, or interior loop motifs
           as augmented by the generalized soft constraints feature
-          //TODO: What the hell is correction??
+          //TODO: What the  is correction??
       */
       for(i = 0; i < corr_cnt; i++){
+    	mm_pf_error_msg("Correction not implemented\n");
         ij = my_iindx[bp_correction[i].i] - bp_correction[i].j;
         /* printf("correcting pair %d, %d by %f\n", bp_correction[i].i, bp_correction[i].j, bp_correction[i].p); */
         probs[ij] += bp_correction[i].p / qb[ij];
