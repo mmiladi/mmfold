@@ -1519,25 +1519,37 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 //            if(hc_up_int[i+1] < u1) continue;
 
             for(j = i + turn + 1; j <= l-1; j++){  // Do we need less than l-1?
-            printf("     (i,j)==%d,%d\n", i, j);
+//            printf("     (i,j)==%d,%d\n", i, j);
 
               u2 = l-j-1;
               if(hc_up_int[l+1] < u2) break; //TODO: change this
-
               ij = my_iindx[i] - j;
+              if (qb[ij]==0.) {
+//            	  printf ("       qb-ij zero\n");
+            	  continue;
+              }
+
               if(hc_local[ij] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP){
                 type = (unsigned char)ptype[jindx[j] + i];
+
                 if(probs[ij] > 0){
 //                  tmp2 =  probs[ij]
 //                          * scale[u1 + u2 + 2]  // This should be ok, right?
 //                          * exp_E_IntLoop(u1, u2, type, type_2, S1[i+1], S1[j-1], S1[k-1], S1[l+1], pf_params);
-                  printf ("       u1:%d u2:%d %d\n", u1, u2, u1+u2+2);
+                  FLT_OR_DBL scaled_inloop_energy = scale[u1 + u2 + 2] *
+                		  exp_E_IntLoop(u2, u1, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
+                  //TODO: VERY IMPORTANT: why i have to skip low min energies? Shouldn't qb compensate it?
+                  FLT_OR_DBL MIN_INL_ENERGY = 1.0;  // TODO: What should this parameter be set??
+                  if (scaled_inloop_energy < MIN_INL_ENERGY) {
+                	  printf ("     ignoring very low inloop energy, check this\n");
+                	  continue;
+                  }
                   tmp2 =  probs[ij]
-                          * (1/scale[u1 + u2 + 2])  // TODO: What is scale?? IMPORTANT TO CHECK THIS
-                          / exp_E_IntLoop(u2, u1, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
-                  printf ("       tmp2=%f / %f * %f\n", probs[ij]
-                              , (scale[u1 + u2 + 2])  // TODO: What is scale?? IMPORTANT TO CHECK THIS
-                               , exp_E_IntLoop(u2, u1, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
+                          /(scale[u1 + u2 + 2] * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))  // TODO: What is scale?? IMPORTANT TO CHECK THIS
+                          * qb[kl]/qb[ij];
+                  printf ("       tmp2=%f / (%f) * %f / %f\n", probs[ij]
+                              , (scale[u1 + u2 + 2] * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))
+                              , qb[kl], qb[ij]
                                       );
                   printf ("     tmp2=%f\n", tmp2);
                   if(sc){ // This is only if we have constraints, so we don't need that. right?
@@ -1588,6 +1600,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       }
 
       if(with_gquad){
+    	mm_pf_error_msg("qquad not supperted yet!\n");
         /* 2.5. bonding k,l as gquad enclosed by i,j */
         double *expintern = &(pf_params->expinternal[0]);
         FLT_OR_DBL qe;
@@ -1802,6 +1815,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     }  /* end for (l=..)   */
 
     if(sc && sc->f && sc->bt){
+      mm_pf_error_msg("bp_correction not supprted\n");
       for (i=1; i<=n; i++)
         for (j=i+turn+1; j<=n; j++) {
           ij = my_iindx[i]-j;
@@ -1838,12 +1852,14 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       }
     }
     free(bp_correction);
-
+/*       //TODO: Observation this code multiplies qb[ij] at the end of computation,
+ *       // presumably for efficiency reason, I don't need that
     for (i=1; i<=n; i++)
       for (j=i+turn+1; j<=n; j++) {
         ij = my_iindx[i]-j;
 
         if(with_gquad){
+          mm_pf_error();
           if (qb[ij] > 0.)
             probs[ij] *= qb[ij];
 
@@ -1855,7 +1871,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
             probs[ij] *= qb[ij];
         }
       }
-
+*/
     if (structure!=NULL){
       char *s = vrna_db_from_probs(probs, (unsigned int)n);
       memcpy(structure, s, n);
