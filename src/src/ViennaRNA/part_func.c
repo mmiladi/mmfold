@@ -736,11 +736,15 @@ pf_circ(vrna_fold_compound_t *vc){
 
 }
 
+PRIVATE void mm_pf_error_msg(char* msg) {
+		  vrna_message_error(msg);
+	  return;
+}
+
 PRIVATE void mm_pf_error(void) {
 	  vrna_message_error("mm bppm calculations does not support constraints or circular folding yet!\n");
 	  return;
 }
-
 
 /* calculate base pairing probs */
 PUBLIC void
@@ -1468,8 +1472,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
             //TODO: Where is Qb matrix in divisions and multiplications??
             // TODO: I need to divide by Qb(ij)
             //TODO: I changed qb to q for division. is it correct??
-            probs[ij] = mc_probs[ij]/q[ij] *  // here we need mccaskill prob for initializing the hairpin case
-            		exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params);
+            probs[ij] = mc_probs[ij]/qb[ij] *  // here we need mccaskill prob for initializing the hairpin case
+            		exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params)
+            		* scale[j-i+1]; // TODO: Important apparently scaling is needed for large pfs. Verify rescaling is correct!
             printf("mc:%f / qb:%f q:%f * h:%f\n", mc_probs[ij], qb[ij], q[ij], exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params));
             		//TODO: IMPORTANT: Hopefully the sequence is passed correctly in above
 
@@ -1488,7 +1493,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
         	  probs[ij] = 0.;
           }
-          printf ("(%d,%d): pmm=%f  p=%f\n", i, j, probs[ij], mc_probs[ij]);
+          if (probs[ij] > 0 || mc_probs[ij]>0){
+        	  printf ("(%d,%d): pmm=%f  p=%f\n", i, j, probs[ij], mc_probs[ij]);
+          }
         }
       }
     } /* end if(!circular)  */
@@ -1499,20 +1506,22 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       /* 2. bonding k,l as substem of 2:loop enclosed by i,j
        * 2.mm bonding k,l as enclosing 2:loop with substem i,j */
       for(k = l - 1 -turn ; k >= 1;  k--){  //TODO  >=1 is fine?
+    	printf("pil (k,l)==%d,%d\n", k, l);
         kl      = my_iindx[k]-l;
         type_2  = (unsigned char)ptype[jindx[l] + k];
         type_2  = rtype[type_2];
 
         if (qb[kl]==0.) continue;
-
         if(hc_local[kl] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP_ENC){
 //          for(i = MAX2(1, k - MAXLOOP - 1); i <= k - 1; i++){
             for(i = k+1; i < l-turn-1;  i++){ //Do we need -1?
-            u1 = k - i - 1; //TODO: change this
+            u1 = i - k - 1; //TODO: change this
 //            if(hc_up_int[i+1] < u1) continue;
 
             for(j = i + turn + 1; j <= l-1; j++){  // Do we need less than l-1?
-              u2 = j-l-1;
+            printf("     (i,j)==%d,%d\n", i, j);
+
+              u2 = l-j-1;
               if(hc_up_int[l+1] < u2) break; //TODO: change this
 
               ij = my_iindx[i] - j;
@@ -1522,11 +1531,17 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 //                  tmp2 =  probs[ij]
 //                          * scale[u1 + u2 + 2]  // This should be ok, right?
 //                          * exp_E_IntLoop(u1, u2, type, type_2, S1[i+1], S1[j-1], S1[k-1], S1[l+1], pf_params);
+                  printf ("       u1:%d u2:%d %d\n", u1, u2, u1+u2+2);
                   tmp2 =  probs[ij]
                           * (1/scale[u1 + u2 + 2])  // TODO: What is scale?? IMPORTANT TO CHECK THIS
-                          / exp_E_IntLoop(u2, u1, type_2, type, S1[k-1], S1[l+1], S1[i+1], S1[j-1],  pf_params);
-
+                          / exp_E_IntLoop(u2, u1, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
+                  printf ("       tmp2=%f / %f * %f\n", probs[ij]
+                              , (scale[u1 + u2 + 2])  // TODO: What is scale?? IMPORTANT TO CHECK THIS
+                               , exp_E_IntLoop(u2, u1, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
+                                      );
+                  printf ("     tmp2=%f\n", tmp2);
                   if(sc){ // This is only if we have constraints, so we don't need that. right?
+                	  mm_pf_error_msg("Constrained not supported");
                     if(sc->exp_energy_up)
                       tmp2 *=   sc->exp_energy_up[i+1][u1]
                               * sc->exp_energy_up[l+1][u2];
@@ -1544,6 +1559,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                     }
 
                     if(sc->exp_f){ // This is only if we have constraints, so we don't need that. right?
+
                       tmp2 *= sc->exp_f(i, j, k, l, VRNA_DECOMP_PAIR_IL, sc->data);
                       if(sc->bt){ /* store probability correction for auxiliary pairs in interior loop motif */
                         vrna_basepair_t *ptr, *aux_bps;
