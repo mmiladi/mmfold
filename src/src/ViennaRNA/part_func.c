@@ -1417,10 +1417,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
   max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
   sequence      = vc->sequence;
 
-  vrna_message_warning("S1\n");
 
   if((S != NULL) && (S1 != NULL)){
-	  vrna_message_warning("S2\n");
 
     expMLclosing  = pf_params->expMLclosing;
     with_gquad    = pf_params->model_details.gquad;
@@ -1434,7 +1432,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       it introduces only little memory overhead, e.g. ~450MB for
       sequences of length 30,000
     */
-    vrna_message_warning("S3\n");
 
     char *hc_local = (char *)vrna_alloc(sizeof(char) * (((n + 1) * (n + 2)) /2 + 2));
     for(i = 1; i <= n; i++)
@@ -1454,27 +1451,23 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     else {
 
       for (i=1; i<=n; i++) {
-    	  printf("S6 %d\n", i);
 //          for (j=i; j<=MIN2(i+turn,n); j++)
         for (j=i; j<=n; j++)  // TODO:do we need max or just n?
         {
         	probs[my_iindx[i]-j] = 0.;
         }
-        vrna_message_warning("S7\n");
 
         for (j=i+turn+1; j<=n; j++) {
-        	  vrna_message_warning("S8\n");
 
           ij = my_iindx[i]-j;
           if(hc_local[ij] & VRNA_CONSTRAINT_CONTEXT_HP_LOOP){ // correct check?
-        	  vrna_message_warning("S9\n");
 
             type      = (unsigned char)ptype[jindx[j] + i];
 //            probs[ij] = q1k[i-1]*qln[j+1]/q1k[n];
 //            probs[ij] *= exp_E_ExtLoop(type, (i>1) ? S1[i-1] : -1, (j<n) ? S1[j+1] : -1, pf_params);
             //TODO: Where is Qb matrix in divisions and multiplications??
             // TODO: I need to divide by Qb(ij)
-            probs[ij] = mc_probs[ij] *  // here we need mccaskill prob for initializing the hairpin case
+            probs[ij] = mc_probs[ij]/qb[ij] *  // here we need mccaskill prob for initializing the hairpin case
             		exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params);
 
             		//TODO: IMPORTANT: Hopefully the sequence is passed correctly in above
@@ -1485,18 +1478,16 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
 
             if(sc){
-            	  vrna_message_warning("S10\n");
 
               if(sc->exp_f){
             	  probs[ij] *= sc->exp_f(1, n, i, j, VRNA_DECOMP_EXT_STEM_OUTSIDE, sc->data);
               }
             }
           } else {
-        	  vrna_message_warning("S11\n");
 
         	  probs[ij] = 0.;
           }
-          
+          printf ("(%d,%d): pmm=%f  p=%f\n", i, j, probs[ij], mc_probs[ij]);
         }
       }
     } /* end if(!circular)  */
@@ -1821,6 +1812,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
       /*  correct pairing probabilities for auxiliary base pairs from hairpin-, or interior loop motifs
           as augmented by the generalized soft constraints feature
+          //TODO: What the hell is correction??
       */
       for(i = 0; i < corr_cnt; i++){
         ij = my_iindx[bp_correction[i].i] - bp_correction[i].j;
