@@ -1467,9 +1467,10 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 //            probs[ij] *= exp_E_ExtLoop(type, (i>1) ? S1[i-1] : -1, (j<n) ? S1[j+1] : -1, pf_params);
             //TODO: Where is Qb matrix in divisions and multiplications??
             // TODO: I need to divide by Qb(ij)
-            probs[ij] = mc_probs[ij]/qb[ij] *  // here we need mccaskill prob for initializing the hairpin case
+            //TODO: I changed qb to q for division. is it correct??
+            probs[ij] = mc_probs[ij]/q[ij] *  // here we need mccaskill prob for initializing the hairpin case
             		exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params);
-
+            printf("mc:%f / qb:%f q:%f * h:%f\n", mc_probs[ij], qb[ij], q[ij], exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params));
             		//TODO: IMPORTANT: Hopefully the sequence is passed correctly in above
 
 //         Example of call:   E_Hairpin(j-i-1, type, S1[i+1], S1[j-1], string+i-1, P);
