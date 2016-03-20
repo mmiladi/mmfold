@@ -1489,9 +1489,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
 //         Example of call:   E_Hairpin(j-i-1, type, S1[i+1], S1[j-1], string+i-1, P);
 //           Example of call: tmp2 = exp_E_Hairpin(u, rt, S1[j+1], S1[i-1], loopseq, pf_params) * scale[u];
-
-
-
             if(sc){
 
               mm_pf_error();
@@ -1610,73 +1607,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       if(with_gquad){
     	mm_pf_error_msg("qquad not supperted yet!\n");
         /* 2.5. bonding k,l as gquad enclosed by i,j */
-        double *expintern = &(pf_params->expinternal[0]);
-        FLT_OR_DBL qe;
-
-        if(l < n - 3){
-          for(k = 2; k <= l - VRNA_GQUAD_MIN_BOX_SIZE; k++){
-            kl = my_iindx[k]-l;
-            if (G[kl]==0.) continue;
-            tmp2 = 0.;
-            i = k - 1;
-            for(j = MIN2(l + MAXLOOP + 1, n); j > l + 3; j--){
-              ij = my_iindx[i] - j;
-              type = (unsigned char)ptype[jindx[j] + i];
-              if(!type) continue;
-              qe = (type > 2) ? pf_params->expTermAU : 1.;
-              tmp2 +=   probs[ij]
-                      * qe
-                      * (FLT_OR_DBL)expintern[j-l-1]
-                      * pf_params->expmismatchI[type][S1[i+1]][S1[j-1]]
-                      * scale[2];
-            }
-            probs[kl] += tmp2 * G[kl];
-          }
-        }
-
-        if (l < n - 1){
-          for (k=3; k<=l-VRNA_GQUAD_MIN_BOX_SIZE; k++) {
-            kl = my_iindx[k]-l;
-            if (G[kl]==0.) continue;
-            tmp2 = 0.;
-            for (i=MAX2(1,k-MAXLOOP-1); i<=k-2; i++){
-              u1 = k - i - 1;
-              for (j=l+2; j<=MIN2(l + MAXLOOP - u1 + 1,n); j++) {
-                ij = my_iindx[i] - j;
-                type = (unsigned char)ptype[jindx[j] + i];
-                if(!type) continue;
-                qe = (type > 2) ? pf_params->expTermAU : 1.;
-                tmp2 +=   probs[ij]
-                        * qe
-                        * (FLT_OR_DBL)expintern[u1+j-l-1]
-                        * pf_params->expmismatchI[type][S1[i+1]][S1[j-1]]
-                        * scale[2];
-              }
-            }
-            probs[kl] += tmp2 * G[kl];  // This should be importan for division
-          }
-        }
-
-        if(l < n){
-          for(k = 4; k <= l - VRNA_GQUAD_MIN_BOX_SIZE; k++){
-            kl = my_iindx[k]-l;
-            if (G[kl]==0.) continue;
-            tmp2 = 0.;
-            j = l + 1;
-            for (i=MAX2(1,k-MAXLOOP-1); i < k - 3; i++){
-              ij = my_iindx[i] - j;
-              type = (unsigned char)ptype[jindx[j] + i];
-              if(!type) continue;
-              qe = (type > 2) ? pf_params->expTermAU : 1.;
-              tmp2 +=   probs[ij]
-                      * qe
-                      * (FLT_OR_DBL)expintern[k - i - 1]
-                      * pf_params->expmismatchI[type][S1[i+1]][S1[j-1]]
-                      * scale[2];
-            }
-            probs[kl] += tmp2 * G[kl];
-          }
-        }
       }
 
       /* 3. bonding k,l as substem of multi-loop enclosed by i,j */
@@ -1697,13 +1627,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
             if(sc){
               /* which decompositions are covered here? => (i, l+1) -> enclosing pair, (k,l) -> enclosed pair, */
-              if(sc->exp_energy_bp)
-                prmt1 *= sc->exp_energy_bp[ii - (l+1)];
+          	  mm_pf_error_msg("Constrained not supported");
 
-/*
-              if(sc->exp_f)
-                prmt1 *= sc->exp_f(i, l+1, k, l, , sc->data);
-*/
             }
           }
           int lj;
@@ -1727,12 +1652,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                     * qm[lj];
 
               if(sc){
-                if(sc->exp_energy_bp)
-                  ppp *= sc->exp_energy_bp[ij];
-/*
-                if(sc->exp_f)
-                  ppp *= sc->exp_f(i, j, l+1, j-1, , sc->data);
-*/
+            	  mm_pf_error_msg("Constrained not supported");
+
               }
               prmt += ppp;
             }
@@ -1747,13 +1668,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
           if(hc->up_ml[l+1]){
             ppp = prm_l1[i] * expMLbase[1];
             if(sc){
-              if(sc->exp_energy_up)
-                ppp *= sc->exp_energy_up[l+1][1];
-
-/*
-              if(sc_exp_f)
-                ppp *= sc->exp_f(, sc->data);
-*/
+          	  mm_pf_error_msg("Constrained not supported");
             }
             prm_l[i] = ppp + prmt1;
           } else {
@@ -1764,13 +1679,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
           if(hc->up_ml[i]){
             ppp = prm_MLb*expMLbase[1];
             if(sc){
-              if(sc->exp_energy_up)
-                ppp *= sc->exp_energy_up[i][1];
+          	  mm_pf_error_msg("Constrained not supported");
 
-/*
-              if(sc->exp_f)
-                ppp *= sc->exp_f(, sc->data);
-*/
             }
 
             prm_MLb = ppp + prml[i];
@@ -1783,7 +1693,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
           }
 
           if(with_gquad){
-            if ((!tt) && (G[kl] == 0.)) continue;
+        	  mm_pf_error_msg("Gquad not supported");
+
           } else {
             if (qb[kl] == 0.) continue;
           }
@@ -1824,41 +1735,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
     if(sc && sc->f && sc->bt){
       mm_pf_error_msg("bp_correction not supprted\n");
-      for (i=1; i<=n; i++)
-        for (j=i+turn+1; j<=n; j++) {
-          ij = my_iindx[i]-j;
-          /*  search for possible auxiliary base pairs in hairpin loop motifs to store
-              the corresponding probability corrections
-          */ 
-          if(hc_local[ij] & VRNA_CONSTRAINT_CONTEXT_HP_LOOP){
-            vrna_basepair_t *ptr, *aux_bps;
-            aux_bps = sc->bt(i, j, i, j, VRNA_DECOMP_PAIR_HP, sc->data);
-            if(aux_bps){
-              FLT_OR_DBL qhp = vrna_exp_E_hp_loop(vc, i, j);
-              for(ptr = aux_bps; ptr && ptr->i != 0; ptr++){
-                bp_correction[corr_cnt].i = ptr->i;
-                bp_correction[corr_cnt].j = ptr->j;
-                bp_correction[corr_cnt++].p = probs[ij] * qhp;
-                if(corr_cnt == corr_size){
-                  corr_size += 5;
-                  bp_correction = vrna_realloc(bp_correction, sizeof(vrna_plist_t) * corr_size);
-                }
-              }
-            }
-            free(aux_bps);
-          }
-        }
 
-      /*  correct pairing probabilities for auxiliary base pairs from hairpin-, or interior loop motifs
-          as augmented by the generalized soft constraints feature
-          //TODO: What the  is correction??
-      */
-      for(i = 0; i < corr_cnt; i++){
-    	mm_pf_error_msg("Correction not implemented\n");
-        ij = my_iindx[bp_correction[i].i] - bp_correction[i].j;
-        /* printf("correcting pair %d, %d by %f\n", bp_correction[i].i, bp_correction[i].j, bp_correction[i].p); */
-        probs[ij] += bp_correction[i].p / qb[ij];
-      }
     }
     free(bp_correction);
 /*       //TODO: Observation this code multiplies qb[ij] at the end of computation,
