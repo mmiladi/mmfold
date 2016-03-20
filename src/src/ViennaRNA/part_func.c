@@ -1602,7 +1602,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
             }
           }
         }
-      }
+
 
       if(with_gquad){
     	mm_pf_error_msg("qquad not supperted yet!\n");
@@ -1612,9 +1612,22 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
       /* 3. bonding k,l as substem of multi-loop enclosed by i,j */
       prm_MLb = 0.;
       if (l<n)
-        for (k = 2; k < l - turn; k++) {
+//        for (k = 2; k < l - turn; k++)
+        {
+
           kl    = my_iindx[k] - l;
-          i     = k - 1;
+    	  FLT_OR_DBL new_score_ML;
+    	  if (qb[kl] == 0) {
+    		  printf ("    ML skip %d,%d\n", k, l);
+    		  continue;
+    	  }
+    	  new_score_ML = mc_probs[kl] * expMLclosing * qm[kl]/qb[kl];
+    	  printf ("    new_score_ML: %f * %f * (%f / %f)\n", mc_probs[kl], expMLclosing, qm[kl], qb[kl]);
+    	  printf ("    new_score_ML=%f\n", new_score_ML);
+    	  probs[kl] += new_score_ML;
+    	  continue;
+
+    	  i     = k - 1;
           prmt  = prmt1 = 0.0;
 
           ii = my_iindx[i];     /* ii-j=[i,j]     */
@@ -1707,10 +1720,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
               temp += prml[i]*qm[my_iindx[i+1] - (k-1)];
 
             if(with_gquad){
-              if(tt)
-                temp    *= exp_E_MLstem(tt, (k>1) ? S1[k-1] : -1, (l<n) ? S1[l+1] : -1, pf_params) * scale[2];
-              else
-                temp    *= G[kl] * expMLstem * scale[2];
+          	  mm_pf_error_msg("Gquad not supported");
             } else {
               temp    *= exp_E_MLstem(tt, (k>1) ? S1[k-1] : -1, (l<n) ? S1[l+1] : -1, pf_params) * scale[2];
             }
@@ -1730,7 +1740,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
           }
         } /* end for (k=..) */
       tmp = prm_l1; prm_l1=prm_l; prm_l=tmp;
-
+    	}
     }  /* end for (l=..)   */
 
     if(sc && sc->f && sc->bt){
