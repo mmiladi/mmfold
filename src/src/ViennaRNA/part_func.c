@@ -1494,9 +1494,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
             if(sc){
 
-              if(sc->exp_f){
-            	  probs[ij] *= sc->exp_f(1, n, i, j, VRNA_DECOMP_EXT_STEM_OUTSIDE, sc->data);
-              }
+              mm_pf_error();
             }
           } else {
 
@@ -1549,20 +1547,12 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                 if(probs[ij] > 0){
                     printf("     (i,j)==%d,%d\n", i, j);
                     printf("      u1=%d,u2=%d\n", u1,u2);
-//                  tmp2 =  probs[ij]
-//                          * scale[u1 + u2 + 2]  // This should be ok, right?
-//                          * exp_E_IntLoop(u1, u2, type, type_2, S1[i+1], S1[j-1], S1[k-1], S1[l+1], pf_params);
                   FLT_OR_DBL scaled_inloop_energy = scale[u1 + u2 + 2] *
                 		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
                   printf("        scaled_inloop_energy=%f * %f = %f\n", scale[u1 + u2 + 2] ,
                 		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params),
                 		  scaled_inloop_energy);
                   FLT_OR_DBL descaled_ratio =  1;
-                  /*int si;
-                  for (si=0; si < (l-k+1)-(j-i+1); si++)
-                	  descaled_ratio *= pf_params->pf_scale; //*log(pf_params->pf_scale) qb[kl]/qb[ij];
-                  printf ("descaled ratio:%f\n", descaled_ratio);
-//                  printf (qb[kl]/qb[ij], );*/
                   //TODO: VERY IMPORTANT: why i have to skip low min energies? Shouldn't qb compensate it?
                   FLT_OR_DBL MIN_INL_ENERGY = 0.1;  // TODO: What should this parameter be set??
                   if (scaled_inloop_energy < MIN_INL_ENERGY) {
@@ -1590,41 +1580,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                   printf ("     tmp2=%f\n", tmp2);
                   if(sc){ // This is only if we have constraints, so we don't need that. right?
                 	  mm_pf_error_msg("Constrained not supported");
-                    if(sc->exp_energy_up)
-                      tmp2 *=   sc->exp_energy_up[i+1][u1]
-                              * sc->exp_energy_up[l+1][u2];
-
-                    if(sc->exp_energy_bp)
-                      tmp2 *=   sc->exp_energy_bp[ij];
-
-                    if(sc->exp_energy_stack){
-                      if((i+1 == k) && (j-1 == l)){
-                        tmp2 *=   sc->exp_energy_stack[i]
-                                * sc->exp_energy_stack[k]
-                                * sc->exp_energy_stack[l]
-                                * sc->exp_energy_stack[j];
-                      }
-                    }
-
-                    if(sc->exp_f){ // This is only if we have constraints, so we don't need that. right?
-
-                      tmp2 *= sc->exp_f(i, j, k, l, VRNA_DECOMP_PAIR_IL, sc->data);
-                      if(sc->bt){ /* store probability correction for auxiliary pairs in interior loop motif */
-                        vrna_basepair_t *ptr, *aux_bps;
-                        aux_bps = sc->bt(i, j, k, l, VRNA_DECOMP_PAIR_IL, sc->data);
-                        for(ptr = aux_bps; ptr && ptr->i != 0; ptr++){
-                          bp_correction[corr_cnt].i = ptr->i;
-                          bp_correction[corr_cnt].j = ptr->j;
-                          bp_correction[corr_cnt++].p = tmp2 * qb[kl];
-                          if(corr_cnt == corr_size){
-                            corr_size += 5;
-                            bp_correction = vrna_realloc(bp_correction, sizeof(vrna_plist_t) * corr_size);
-                          }
-                        }
-                        free(aux_bps);
-                      }
                     
-                    }
                   }
 
                   probs[kl] += tmp2;
