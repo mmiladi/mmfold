@@ -1547,6 +1547,20 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                 if(probs[ij] > 0){
                     printf("     (i,j)==%d,%d\n", i, j);
                     printf("      u1=%d,u2=%d\n", u1,u2);
+
+				FLT_OR_DBL new_score = probs[ij] * (mc_probs[kl]/mc_probs[ij])
+						* (qb[ij]/qb[kl])
+						* (scale[u1 + u2 + 2]
+						   * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
+						   );
+
+				printf ("       new_score: %f * (%f/%f) * (%f/%f) * (%f*%f)\n",probs[ij], (mc_probs[kl]/mc_probs[ij])
+						, (qb[ij]/qb[kl])
+						, scale[u1 + u2 + 2], exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
+						);
+				printf ("       new_score=%f\n", new_score);
+
+/*
                   FLT_OR_DBL scaled_inloop_energy = scale[u1 + u2 + 2] *
                 		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
                   printf("        scaled_inloop_energy=%f * %f = %f\n", scale[u1 + u2 + 2] ,
@@ -1577,6 +1591,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                             		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))
                               , qb[kl]/qb[ij]
                                       );
+                                      */
+				  tmp2 = new_score;
                   printf ("     tmp2=%f\n", tmp2);
                   if(sc){ // This is only if we have constraints, so we don't need that. right?
                 	  mm_pf_error_msg("Constrained not supported");
