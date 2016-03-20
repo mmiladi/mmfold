@@ -1428,7 +1428,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
   max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
   sequence      = vc->sequence;
 
-
+  printf("pfscale=%f\n", pf_params->pf_scale);
   if((S != NULL) && (S1 != NULL)){
 
     expMLclosing  = pf_params->expMLclosing;
@@ -1554,20 +1554,37 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 //                          * exp_E_IntLoop(u1, u2, type, type_2, S1[i+1], S1[j-1], S1[k-1], S1[l+1], pf_params);
                   FLT_OR_DBL scaled_inloop_energy = scale[u1 + u2 + 2] *
                 		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params);
-                  printf("scaled_inloop_energy=%f * %f = %f\n", scale[u1 + u2 + 2] ,
+                  printf("        scaled_inloop_energy=%f * %f = %f\n", scale[u1 + u2 + 2] ,
                 		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params),
                 		  scaled_inloop_energy);
+                  FLT_OR_DBL descaled_ratio =  1;
+                  /*int si;
+                  for (si=0; si < (l-k+1)-(j-i+1); si++)
+                	  descaled_ratio *= pf_params->pf_scale; //*log(pf_params->pf_scale) qb[kl]/qb[ij];
+                  printf ("descaled ratio:%f\n", descaled_ratio);
+//                  printf (qb[kl]/qb[ij], );*/
                   //TODO: VERY IMPORTANT: why i have to skip low min energies? Shouldn't qb compensate it?
-                  FLT_OR_DBL MIN_INL_ENERGY = 1.0;  // TODO: What should this parameter be set??
+                  FLT_OR_DBL MIN_INL_ENERGY = 0.1;  // TODO: What should this parameter be set??
                   if (scaled_inloop_energy < MIN_INL_ENERGY) {
-                	  printf ("     ignoring very low inloop energy, check this\n");
+                	  printf ("     skipping very low inloop energy, check this\n");
+                	  continue;
+                  }
+                  FLT_OR_DBL bayes_term = 1/(scale[u1 + u2 + 2] * exp_E_IntLoop(u1, u2, type_2, type,
+                		                     S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))  // TODO: What is scale?? IMPORTANT TO CHECK THIS
+                        	               * qb[kl]/qb[ij];
+                  printf("       bayes_term=%f\n", bayes_term);
+                  FLT_OR_DBL BAYES_LIMIT = 2; //TODO: Note: This is a hackish way!
+                  if(bayes_term> BAYES_LIMIT) {
+                	  printf ("     skipping very high bayes term, check this\n");
                 	  continue;
                   }
                   tmp2 =  probs[ij]
-                          /(scale[u1 + u2 + 2] * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))  // TODO: What is scale?? IMPORTANT TO CHECK THIS
+                          /(scale[u1 + u2 + 2] *
+                        		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))  // TODO: What is scale?? IMPORTANT TO CHECK THIS
                           * qb[kl]/qb[ij];
                   printf ("       tmp2=%f / (%f) * (%f)\n", probs[ij]
-                              , (scale[u1 + u2 + 2] * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))
+                              , (scale[u1 + u2 + 2] *
+                            		  exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params))
                               , qb[kl]/qb[ij]
                                       );
                   printf ("     tmp2=%f\n", tmp2);
