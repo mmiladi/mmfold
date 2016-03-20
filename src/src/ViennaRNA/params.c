@@ -235,6 +235,22 @@ vrna_exp_params_rescale(vrna_fold_compound_t *vc,
   }
 }
 
+
+PUBLIC void
+vrna_exp_params_noscale(vrna_fold_compound_t *vc){
+	printf("vrna_exp_params_rescale\n");
+	if(vc){
+		printf("vrna_exp_params_rescale2\n");
+		vrna_exp_param_t *pf = vc->exp_params;
+		if(pf){
+			printf("current pf_scale:%f\n", pf->pf_scale);
+			pf->pf_scale = 1.;
+		}
+		printf("Note: pf_scale is set to: %f\n", pf->pf_scale);
+		rescale_params(vc);
+	}
+}
+
 /*
 #####################################
 # BEGIN OF STATIC HELPER FUNCTIONS  #

@@ -545,8 +545,8 @@ int main(int argc, char *argv[]){
           vc->params->model_details.dangles=1;
       }
 
-      vrna_exp_params_rescale(vc, &min_en);
-
+//      vrna_exp_params_rescale(vc, &min_en);
+      vrna_exp_params_noscale(vc); // The idea behind pf_scale is unclear for me, to avoid compuatiotional error set it to one here
       kT = vc->exp_params->kT/1000.;
 
       if (length>2000) fprintf(stderr, "scaling factor %f\n", vc->exp_params->pf_scale);

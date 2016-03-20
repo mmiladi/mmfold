@@ -309,6 +309,13 @@ vrna_exp_params_rescale(vrna_fold_compound_t *vc,
                         double *mfe);
 
 /**
+ *  @brief Disable pf_scale and scale[] as alternative to vrna_exp_params_rescale() for mmfold
+ *
+ */
+void
+vrna_exp_params_noscale(vrna_fold_compound_t *vc);
+
+/**
  *  @brief  Reset free energy parameters within a #vrna_fold_compound_t
  *          according to provided, or default model details
  *
