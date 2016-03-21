@@ -1656,6 +1656,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
 	l = k + mysize + 1;
 	kl    = my_iindx[k] - l;
+    FLT_OR_DBL my_Z = q[vc->iindx[1]-n];
 
 	int h;
 	FLT_OR_DBL tmp_m1 = 0;
@@ -1670,7 +1671,7 @@ for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
 
 		FLT_OR_DBL branch_score = exp_E_MLstem(type, S1[k+1], S1[h-1],pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
 		type      = (unsigned char)ptype[jindx[k] + h]; // TODO: Important sometime we find the type of reverse. Which one to use here?
-		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * ((j>k)?expMLbase[1]*(j-k):1)); //TODO: Tune expMLbase calculations
+		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * ((j>k)?(expMLbase[1]*(j-k)):1); //TODO: Tune expMLbase calculations
 
 	}
 	M1_mm[kl] = tmp_m1;
@@ -1685,48 +1686,49 @@ for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
 
 
 
-     FLT_OR_DBL my_Z = q[vc->iindx[1]-n];
 
      FLT_OR_DBL ML_unpaired_score = 0;
      //TODO: Initialize MM_m matrix for short ranges of around turn..
      printf(" M=(%d,%d)\n", k, l);
 
+/*     // WE HAVE TO REMOVE UNPAIRED CASE, IT SHPULD BE COVERED BY M1
      if (k+1 <= l) { // TODO: Important MUST be verified by myself
     	 ML_unpaired_score = M_mm[my_iindx[k+1] - l] * expMLbase[1]; //expMLbase[1]; // TODO: Important assuming expMLbase is score of an un-paired base in ML
     	 printf("      unpaired_score=%f\n", ML_unpaired_score);
      }
+
      tmp_m += ML_unpaired_score;
+     */
      // 2.7 Case2: i is paired
 
-     for(h = k+turn ; h < l;  h++){  // TODO:  All loop boundary MUST be revised
+     for(h = k ; h < l-turn;  h++){  // TODO:  All loop boundary MUST be revised
     	 printf("      M=(%d,%d,%d)\n", k, h, l);
   		 int kh = my_iindx[k] - h;
-  		 FLT_OR_DBL ML_paired_score = 0;
-  		 if (probs[kh] == 0 || mc_probs[kh] == 0) { // TODO: equivalent? qb[ig]==0
-  			 continue;
-  		 }
   		 if (h+1 > l) {  // TODO: Important MUST be verified by myself
   			 continue;
   		 }
   		// TODO: Care for the External loops is not considered at all
 
-        type      = (unsigned char)ptype[jindx[k] + h]; // TODO: Important sometime we find the type of reverse. Which one to use here?
-        FLT_OR_DBL branch_score = exp_E_MLstem(type, S1[k+1], S1[h-1],pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
-  		 printf ("        M_mm[%d,%d]=%f\n", h+1, l, M_mm[ my_iindx[h+1] - l]);
-  		 ML_paired_score = probs[kh]/mc_probs[kh] * qb[kh] *branch_score * M_mm[ my_iindx[h+1] - l];// / my_Z;
-  		 printf("       paired_score:(%f/%f) * %f * %f * %f \n",
-  				probs[kh], mc_probs[kh], qb[kh], branch_score,  M_mm[ my_iindx[h+1] - l]);
-  		 printf("       paired_score=%.10f\n", ML_paired_score);
-  		 tmp_m += ML_paired_score;
+  		 tmp_m += M_mm[ my_iindx[k] - h-1] + ((h>k)?(expMLbase[1]*(h-k)):1) //TODO: pretty sure h>k or h-k are wrong in boundary
+  		                * M1_mm[ my_iindx[h] - l] ;
 
   	 }
      M_mm[kl] = tmp_m;
 
      printf("M_mm(%d,%d)=%.10f\n", k,l, M_mm[kl]);
+
+     //Case 2.8 Fill probabilities with forcing at least two basepairs
      if (qb[kl] == 0) {
        	 continue;
      }
-     probs[kl] += expMLclosing * mc_probs[kl]/qb[kl] * tmp_m;
+     //TODO: Maybe we have to re introduce my_Z
+ 	 FLT_OR_DBL tmp_mb = 0;
+     for(h = k+1 ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
+
+    	 tmp_mb += M_mm[ my_iindx[k+1] - h-1]
+       		                * M1_mm[ my_iindx[h] - l-1] * expMLclosing; // TODO: Important why expMLclosing is type independent??
+     }
+     probs[kl] += mc_probs[kl]/qb[kl] * tmp_mb;
      printf("probs(%d,%d)=%f\n", k,l, probs[kl]);
      continue;
 
