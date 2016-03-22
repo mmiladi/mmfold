@@ -993,7 +993,7 @@ pf_create_bppm( vrna_fold_compound_t *vc,
       /* 2. bonding k,l as substem of 2:loop enclosed by i,j */
       for(k = 1; k < l - turn; k++){
         kl      = my_iindx[k]-l;
-        type_2  = (unsigned char)ptype[jindx[l] + k];
+        type_2  = (unsigned char)ptype[jindx[l] + k]; // TODO: Question: Why use lk then reverse it??
         type_2  = rtype[type_2];
 
         if (qb[kl]==0.) continue;
@@ -1439,7 +1439,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
   max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
   sequence      = vc->sequence;
 
-  int mm_verbose = 0;
+  int mm_verbose = 1;
 
 
 
@@ -1451,6 +1451,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     with_gquad    = pf_params->model_details.gquad;
     rtype         = &(pf_params->model_details.rtype[0]);
     n             = S[0];
+    printf ("n=%d\n", n);
 
     // Matrix to store mm multiloop scores
     FLT_OR_DBL *M_mm  = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL)*((n+2)*(n+2)));
@@ -1518,8 +1519,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
             //TODO: Where is Qb matrix in divisions and multiplications??
             // TODO: I need to divide by Qb(ij)
             //TODO: I changed qb to q for division. is it correct??
-            probs[ij] = mc_probs[ij]/qb[ij] *  // here we need mccaskill prob for initializing the hairpin case
-            		exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params)
+            probs[ij] = mc_probs[ij]/
+            		qb[ij] *  // here we need mccaskill prob for initializing the hairpin case
+            		exp_E_Hairpin(j-i-1, type, S1[i+1], S1[j-1], sequence+i-1 ,pf_params)
             		* scale[j-i+1]; // TODO: Important apparently scaling is needed for large pfs. Verify rescaling is correct!
             mm_printf(mm_verbose, "mc:%f / qb:%f q:%f * h:%f\n", mc_probs[ij], qb[ij], q[ij], exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params));
             		//TODO: IMPORTANT: Hopefully the sequence is passed correctly in above
@@ -1543,18 +1545,18 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     vrna_message_warning("SA1\n");
     mm_printf(mm_verbose, "turn:%d", turn);
     //TODO: I assume the turn/min-loop-length is the min number of unpaired based in a hairpin
+
+    // 2. mm bonding k,l as enclosing 2:loop with substem i,j
     int mysize;
     for (mysize=turn; mysize<=n; mysize++) // TODO: All loop boundary MUST be revised
     {
     	for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
     		l = k + mysize + 1;
-      /* 2. bonding k,l as substem of 2:loop enclosed by i,j
-       * 2.mm bonding k,l as enclosing 2:loop with substem i,j */
-
-    	mm_printf(mm_verbose, "pil (k,l)==%d,%d\n", k, l);
+    	mm_printf(mm_verbose, "mysize=%d,n=%d)::\n", mysize, l);
+    	mm_printf(mm_verbose, "pil (%d,%d)::\n", k, l);
         kl      = my_iindx[k]-l;
-        type_2  = (unsigned char)ptype[jindx[l] + k];
-//        type_2  = rtype[type_2];  //TODO: ij reversed instead of kl, apparently innerone should be revresed, but MUST BE CHECKED
+        type  = (unsigned char)ptype[jindx[l] + k];
+//        type  = rtype[type];  //TODO: ij reversed instead of kl, apparently innerone should be revresed, but MUST BE CHECKED
 
         if (qb[kl]==0.) continue;
         if(hc_local[kl] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP_ENC)
@@ -1576,8 +1578,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
               }
 
               if(hc_local[ij] & VRNA_CONSTRAINT_CONTEXT_INT_LOOP){
-                type = (unsigned char)ptype[jindx[j] + i];
-                type  = rtype[type];  // TODO: This was added, not sure why, check type2 above
+                type_2 = (unsigned char)ptype[jindx[j] + i];
+                unsigned char type_2_r  = rtype[type_2];  // TODO: Why do reverse thingy??
                 if(probs[ij] > 0){
                     mm_printf(mm_verbose, "     (i,j)==%d,%d\n", i, j);
                     mm_printf(mm_verbose, "      u1=%d,u2=%d\n", u1,u2);
@@ -1585,14 +1587,19 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 				FLT_OR_DBL new_score = probs[ij] * (mc_probs[kl]/mc_probs[ij])
 						* (qb[ij]/qb[kl])
 						* (scale[u1 + u2 + 2]
-						   * exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
+						   * exp_E_IntLoop(u1, u2, type, type_2_r, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
+//						   * exp_E_Stem(type_2, S1[k+1], S1[l-1], 0, pf_params)
+//						   / exp_E_Stem(type, S1[i+1], S1[j-1], 0, pf_params) //TODO: Maybe type_r?
 						   );
-
-				mm_printf (mm_verbose, "       new_score: %f * (%f/%f) * (%f/%f) * (%f*%f)\n",probs[ij], (mc_probs[kl]/mc_probs[ij])
-						, (qb[ij]/qb[kl])
-						, scale[u1 + u2 + 2], exp_E_IntLoop(u1, u2, type_2, type, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
+				mm_printf (mm_verbose, "       type:%d, type2:%d\n", type, type_2_r);
+				mm_printf (mm_verbose, "       il_score: %f * (%f/%f) * (%f/%f) * (%f*%f)\n",
+						probs[ij], mc_probs[kl], mc_probs[ij]
+						, qb[ij],qb[kl]
+						, scale[u1 + u2 + 2], exp_E_IntLoop(u1, u2, type, type_2_r, S1[k+1], S1[l-1], S1[i-1], S1[j+1],  pf_params)
 						);
-				mm_printf (mm_verbose, "       new_score=%f\n", new_score);
+
+
+				mm_printf (mm_verbose, "       il_score=%f\n", new_score);
 
 /*
                   FLT_OR_DBL scaled_inloop_energy = scale[u1 + u2 + 2] *
@@ -1634,6 +1641,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                   }
 
                   probs[kl] += tmp2;
+                  mm_printf (mm_verbose, "     prob_il=%f\n", probs[kl]);
                 }
               }
             }
@@ -1651,7 +1659,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
        */
     	}
 
-        printf ("mysize=%d\n", mysize);
 
 for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
 	l = k + mysize + 1;
@@ -1671,11 +1678,11 @@ for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
 
 		FLT_OR_DBL branch_score = exp_E_MLstem(type, S1[k+1], S1[h-1],pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
 		type      = (unsigned char)ptype[jindx[k] + h]; // TODO: Important sometime we find the type of reverse. Which one to use here?
-		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * ((j>k)?(expMLbase[1]*(j-k)):1); //TODO: Tune expMLbase calculations
+		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * ((l>h)?(expMLbase[1]*(l-h)):1); //TODO: Tune expMLbase calculations
 
 	}
 	M1_mm[kl] = tmp_m1;
-    printf("  M1(%d,%d)=%f\n", k,l, M1_mm[kl]);
+	mm_printf(mm_verbose, "  M1(%d,%d)=%f\n", k,l, M1_mm[kl]);
 
 
 	//TODO: Important: Do we need to care of scaling in this equations, e.g. for expMLbase??
@@ -1689,7 +1696,7 @@ for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
 
      FLT_OR_DBL ML_unpaired_score = 0;
      //TODO: Initialize MM_m matrix for short ranges of around turn..
-     printf(" M=(%d,%d)\n", k, l);
+     mm_printf(mm_verbose, " M=(%d,%d)\n", k, l);
 
 /*     // WE HAVE TO REMOVE UNPAIRED CASE, IT SHPULD BE COVERED BY M1
      if (k+1 <= l) { // TODO: Important MUST be verified by myself
@@ -1702,20 +1709,20 @@ for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
      // 2.7 Case2: i is paired
 
      for(h = k ; h < l-turn;  h++){  // TODO:  All loop boundary MUST be revised
-    	 printf("      M=(%d,%d,%d)\n", k, h, l);
+    	 mm_printf(mm_verbose, "      M=(%d,%d,%d)\n", k, h, l);
   		 int kh = my_iindx[k] - h;
   		 if (h+1 > l) {  // TODO: Important MUST be verified by myself
   			 continue;
   		 }
   		// TODO: Care for the External loops is not considered at all
 
-  		 tmp_m += M_mm[ my_iindx[k] - h-1] + ((h>k)?(expMLbase[1]*(h-k)):1) //TODO: pretty sure h>k or h-k are wrong in boundary
+  		 tmp_m += M_mm[ my_iindx[k] - h-1] * ((h>k)?(expMLbase[1]*(h-k)):1) //TODO: pretty sure h>k or h-k are wrong in boundary
   		                * M1_mm[ my_iindx[h] - l] ;
 
   	 }
      M_mm[kl] = tmp_m;
 
-     printf("M_mm(%d,%d)=%.10f\n", k,l, M_mm[kl]);
+     mm_printf(mm_verbose, "M_mm(%d,%d)=%.10f\n", k,l, M_mm[kl]);
 
      //Case 2.8 Fill probabilities with forcing at least two basepairs
      if (qb[kl] == 0) {
@@ -1727,9 +1734,12 @@ for(k = 1 ; k <= n-mysize+1;  k++){  // TODO:  All loop boundary MUST be revised
 
     	 tmp_mb += M_mm[ my_iindx[k+1] - h-1]
        		                * M1_mm[ my_iindx[h] - l-1] * expMLclosing; // TODO: Important why expMLclosing is type independent??
+    	 mm_printf(mm_verbose, "h=%d, tmp_mp=%f\n", h, tmp_mb);
      }
      probs[kl] += mc_probs[kl]/qb[kl] * tmp_mb;
-     printf("probs(%d,%d)=%f\n", k,l, probs[kl]);
+     mm_printf(mm_verbose, "probs(%d,%d): %f / %f * %f\n", k,l,  mc_probs[kl], qb[kl], tmp_mb);
+
+     mm_printf(mm_verbose, "probs(%d,%d)=%f\n", k,l, probs[kl]);
      continue;
 
 
