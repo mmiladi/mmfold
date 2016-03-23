@@ -1681,9 +1681,11 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 		type      = (unsigned char)ptype[jindx[k] + h]; // TODO: Important sometime we find the type of reverse. Which one to use here?
 
 
-		FLT_OR_DBL branch_score = exp_E_MLstem(type, S1[k+1], S1[h-1],pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
-		exp_E_Stem()
-		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h]
+//		FLT_OR_DBL branch_score = exp_E_MLstem(type, S1[k+1], S1[h-1],pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
+//		FLT_OR_DBL branch_score = exp_E_Stem(type, S1[k-1], S1[h+1],1, pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
+
+		FLT_OR_DBL branch_score = exp_E_MLstem(rtype[type], S1[h], S1[k], pf_params);
+		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h];
 //				((l>h)?(expMLbase[1]**(l-h)):1)
 				; //TODO: Tune expMLbase calculations
 
@@ -1780,28 +1782,47 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 //    			        	       			            S1[l-1], S1[k+1],  pf_params)
 //    			        	       			            );
 
-    	 mm_printf(mm_verbose, "      tmp_mb=%f\n", h, tmp_mb);
+    	 mm_printf(mm_verbose, "      tmp_mb=%f\n", tmp_mb);
      }
      mm_printf(mm_verbose, "probs(%d,%d)=%f before\n", k,l, probs[kl]);
 
-     probs[kl] += mc_probs[kl]/qb[kl] * tmp_mb      * expMLclosing
- 	       	   * exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
+     FLT_OR_DBL closing_stem_score =
+              exp_E_MLstem(rtype[(unsigned char)ptype[jindx[l] + k]],
+            		  (k>1) ? S1[k-1] : -1, (l<n) ? S1[l+1] : -1, pf_params)
+             ;
+
+    		 //exp_E_Stem((unsigned char)ptype[jindx[l] + k], -1, -1,0, pf_params);
+//    		 exp_E_Stem((unsigned char)ptype[jindx[l] + k], S1[k-1], S1[l+1],0, pf_params);
+     probs[kl] +=
+    		 mc_probs[kl]/qb[kl] * tmp_mb      * expMLclosing //* scale[2] todo: add this scale
+    		 * closing_stem_score
+
+// 	       	   * exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
 // 	       			            S1[l-1], S1[k+1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
-     	 	 	 	 	 	 	S1[k+1], S1[l-1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
+//     	 	 	 	 	 	 	S1[k+1], S1[l-1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
                 ;
+
+     /*
+      * Sample frpm LPfold
+      *
+      *           qbt1 += temp * expMLclosing * exp_E_MLstem(tt, S1[j-1], S1[i+1], pf_params) * scale[2];
+      *           ...
+      *
+      *           qbt1 = qb[i][j] * exp_E_MLstem(type, (i>1) ? S1[i-1] : -1, (j<n) ? S1[j+1] : -1, pf_params);
+      *
+      */
      mm_printf(mm_verbose, "probs(%d,%d): %f / %f * %f * %.12f * %f\n",
     		 k,l,  mc_probs[kl], qb[kl], tmp_mb
 		       , expMLclosing
-	       	   , exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
-	       			S1[k+1], S1[l-1],   pf_params)
+	       	   , closing_stem_score
                );
      ;
-    mm_printf(mm_verbose, "probs(%d,%d): %f / %f * %f * %.12f * %f\n",
-	 k,l,  mc_probs[kl], qb[kl], tmp_mb
-    , expMLclosing
-	   , exp_E_MLstem(rtype[(unsigned char)ptype[jindx[l] + k]],
-			        S1[k+1], S1[l-1],   pf_params)
-    );
+//    mm_printf(mm_verbose, "probs(%d,%d): %f / %f * %f * %.12f * %f\n",
+//	 k,l,  mc_probs[kl], qb[kl], tmp_mb
+//    , expMLclosing
+//	   , exp_E_MLstem(rtype[(unsigned char)ptype[jindx[l] + k]],
+//			        S1[k+1], S1[l-1],   pf_params)
+//    );
 
      mm_printf(mm_verbose, "probs(%d,%d)=%f\n", k,l, probs[kl]);
      continue;
