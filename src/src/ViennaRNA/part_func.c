@@ -1458,6 +1458,14 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     FLT_OR_DBL *M1_mm  = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL)*((n+2)*(n+2)));
     //TODO: Important free M_mm in appropriate place!
     // We have to initialize short range matrices with score of unpaired_ML
+    for(i = 1; i <= n; i++)
+    {	for(j = i; j <= n; j++)
+    	{
+    		M_mm[my_iindx[i] - j] = 1.0;
+    		M1_mm[my_iindx[i] - j] = 0;
+    	}
+    }
+
     int initsize ;
     for(initsize = 0; initsize <= turn+1; initsize++) // <= TODO: turn or < turn or ..?
     	for(i = 1; i <= n; i++)
@@ -1685,7 +1693,8 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 //		FLT_OR_DBL branch_score = exp_E_Stem(type, S1[k-1], S1[h+1],1, pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
 
 		FLT_OR_DBL branch_score = exp_E_MLstem(rtype[type], S1[h], S1[k], pf_params);
-		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h];
+//		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h];
+		tmp_m1 += (qb[kh] *branch_score + 1) * expMLbase[l-h];
 //				((l>h)?(expMLbase[1]**(l-h)):1)
 				; //TODO: Tune expMLbase calculations
 
@@ -1754,7 +1763,7 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
      }
      //TODO: Maybe we have to re introduce my_Z
  	 FLT_OR_DBL tmp_mb = 0;
-     for(h = k+1 ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
+     for(h = k+2 ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
     	 mm_printf(mm_verbose, "    mb=(%d,%d,%d)\n", k, h, l);
 
     	 tmp_mb += M_mm[ my_iindx[(k+1)] - (h-1)]
