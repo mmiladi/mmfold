@@ -175,6 +175,8 @@ vrna_pf( vrna_fold_compound_t *vc,
   free_energy = (float)(INF/100.);
 
   if(vc){
+	printf ("S0 vc->qm1 %d\n", vc->exp_matrices->qm1);
+
     params    = vc->exp_params;
     n         = vc->length;
     md        = &(params->model_details);
@@ -243,7 +245,9 @@ vrna_pf( vrna_fold_compound_t *vc,
 
     	case VRNA_VC_TYPE_SINGLE:     /* fall through */
 
-    	default:                      pf_create_bppm(vc, structure);
+    	default:
+    		printf ("S1 vc->qm1 %d\n", vc->exp_matrices->qm1);
+    		pf_create_bppm(vc, structure);
     	break;
     	}
 
@@ -275,7 +279,9 @@ vrna_pf( vrna_fold_compound_t *vc,
       	break;
       	case VRNA_VC_TYPE_SINGLE:     /* fall through */
 
-      	default:                      mm_pf_create_bppm(vc, structure); // mmfold case
+      	default:
+      		printf ("S2 vc->qm1 %d\n", vc->exp_matrices->qm1);
+      		mm_pf_create_bppm(vc, structure); // mmfold case
       	break;
       	}
   #ifdef  VRNA_BACKWARD_COMPAT
@@ -831,13 +837,14 @@ pf_create_bppm( vrna_fold_compound_t *vc,
   max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
   sequence      = vc->sequence;
 
-
+  printf ("S4.0 qm1 %d\n", qm1);
   if((S != NULL) && (S1 != NULL)){
 
     expMLclosing  = pf_params->expMLclosing;
     with_gquad    = pf_params->model_details.gquad;
     rtype         = &(pf_params->model_details.rtype[0]);
     n             = S[0];
+    printf ("S4.1.1 qm1 %d\n", qm1);
 
     /*
       The hc_local array provides row-wise access to hc->matrix, i.e.
@@ -935,6 +942,8 @@ pf_create_bppm( vrna_fold_compound_t *vc,
             }
             /* 1.3 Exterior multiloop decomposition */
             /* 1.3.1 Middle part                    */
+    		printf ("S4 vc->qm1 %d\n", vc->exp_matrices->qm1);
+
             if((i>turn+2) && (j<n-turn-1))
               tmp2 += qm[my_iindx[1]-i+1]
                       * qm[my_iindx[j+1]-n]
@@ -1647,9 +1656,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                 	  mm_pf_error_msg("Constrained not supported");
                     
                   }
-
+                  mm_printf (mm_verbose, "  prob_kl=%f before\n", probs[kl]);
                   probs[kl] += tmp2;
-                  mm_printf (mm_verbose, "     prob_il=%f\n", probs[kl]);
+                  mm_printf (mm_verbose, "  prob_kl=%f\n", probs[kl]);
                 }
               }
             }
@@ -1670,8 +1679,14 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     	//TODO: IMPORTANT: below for MLs Scaling was totally neglected after sometime
 for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 	l = k + mysize + 1;
-
+	if ( l-k <= turn ) //TODO: This skip should be here. right?
+		continue;
+	printf ("k:%d l:%d\n", k,l);
 	kl    = my_iindx[k] - l;
+//	if (qb[kl] > 0)
+//	{
+//		printf ("", qb[kl], qm1[jindx[k]+l]);
+//	}
     FLT_OR_DBL my_Z = q[vc->iindx[1]-n];
 
 	int h;
@@ -1763,47 +1778,41 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
      }
      //TODO: Maybe we have to re introduce my_Z
  	 FLT_OR_DBL tmp_mb = 0;
-     for(h = k+4 +turn ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
+ 	for(h = k +turn+1 ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
+		 mm_printf(mm_verbose, "    mb=(%d,%d,%d)\n", k, h, l);
+		 printf ("   tmp_mb+= %f * %f\n", qm[ my_iindx[(k+1)] - (h-1)]
+		                                                           ,qm1[jindx[l-1] + h]);
+		 tmp_mb +=
+   			 qm[ my_iindx[(k+1)] - (h-1)]
+   	                       		       * qm1[jindx[l-1] + h];
+		 printf ("   tmp_mb=%f\n", tmp_mb);
+
+//     for(h = k+4 +turn ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
     	 //TODO THIS 2+TURN is INACCURATE!!!
+/*
     	 int h2;
     	 for(h2 = k ; h2 < h;  h2++)
     	 {
 			 mm_printf(mm_verbose, "    mb=(%d,%d,%d,%d)\n", k, h2, h, l);
 
 			 tmp_mb +=
-	//    			 qm[ my_iindx[(k+1)] - (h-1)]
-	//    	                       		       * M1_mm[ my_iindx[h] - (l-1)]
+	    			 qm[ my_iindx[(k+1)] - (h-1)]
+	    	                       		       * qm1[jindx[l-1] - h]
 
-					 ((h2>k)?M_mm[ my_iindx[(k+1)] - (h2-1)]:1)
-					 * M1_mm[ my_iindx[h2] - (h-1)]
-					   * M1_mm[ my_iindx[h] - (l-1)]
+//					 ((h2>k)?M_mm[ my_iindx[(k+1)] - (h2-1)]:1)
+//					 * M1_mm[ my_iindx[h2] - (h-1)]
+//					   * M1_mm[ my_iindx[h] - (l-1)]
 
 
-								//       		       * expMLclosing
-	//       	       	   * exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
-	//       	       			            S1[l-1], S1[k+1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
-
-	//       		                * exp_E_MLstem(rtype[(unsigned char)ptype[jindx[l] + k]],
-	//       		                		S1[k+1], S1[l-1], pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
-	//       		                * scale[2]
 								; // TODO: Important why expMLclosing is type independent??
 			 mm_printf(mm_verbose, "       tmp_mb:%f * %f * %f * %f \n",
 					 M_mm[ my_iindx[(k+1)] - (h-1)]
 										   ,M1_mm[ my_iindx[h] - (l-1)]
-	//    			        		       , expMLclosing
-	//    			        	       	   , exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
-	//    			        	       			            S1[l-1], S1[k+1],  pf_params)
 															);
-	//    	 mm_printf(mm_verbose, "       tmp_mb:%f * %f * %.12f * %f \n",
-	//    			 M_mm[ my_iindx[(k+1)] - (h-1)]
-	//    			        		       ,M1_mm[ my_iindx[h] - (l-1)]
-	//    			        		       , expMLclosing
-	//    			        	       	   , exp_E_MLstem(rtype[(unsigned char)ptype[jindx[l] + k]],
-	//    			        	       			            S1[l-1], S1[k+1],  pf_params)
-	//    			        	       			            );
 
 			 mm_printf(mm_verbose, "      tmp_mb=%f\n", tmp_mb);
     	 }
+    	 */
     }
      mm_printf(mm_verbose, "probs(%d,%d)=%f before\n", k,l, probs[kl]);
 
@@ -1830,15 +1839,21 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 
     		 //exp_E_Stem((unsigned char)ptype[jindx[l] + k], -1, -1,0, pf_params);
 //    		 exp_E_Stem((unsigned char)ptype[jindx[l] + k], S1[k-1], S1[l+1],0, pf_params);
+     if (mc_probs[kl] < 1e-3 ) {
+    	 printf("Warn: Ignore very low mc probable mc_probs[%d,%d]\n", k, l);
+    	 continue;
+     }
+
      probs[kl] +=
-    		 mc_probs[kl]/qb[kl] * tmp_mb      * expMLclosing //* scale[2] todo: add this scale
+    		 mc_probs[kl]/qb[kl] * tmp_mb * expMLclosing //* scale[2] todo: add this scale
     		 * closing_stem_score
 
 // 	       	   * exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
 // 	       			            S1[l-1], S1[k+1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
 //     	 	 	 	 	 	 	S1[k+1], S1[l-1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
                 ;
-
+     mm_printf(mm_verbose, "probs(%d,%d): %.15f/%f * %f * %.10f * %f \n", k, l,  mc_probs[kl],qb[kl]
+                  , tmp_mb, expMLclosing, closing_stem_score);
      /*
       * Sample frpm LPfold
       *
@@ -1848,11 +1863,11 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
       *           qbt1 = qb[i][j] * exp_E_MLstem(type, (i>1) ? S1[i-1] : -1, (j<n) ? S1[j+1] : -1, pf_params);
       *
       */
-     mm_printf(mm_verbose, "probs(%d,%d): %f / %f * %f * %.12f * %f\n",
-    		 k,l,  mc_probs[kl], qb[kl], tmp_mb
-		       , expMLclosing
-	       	   , closing_stem_score
-               );
+//     mm_printf(mm_verbose, "probs(%d,%d): %f / %f * %f * %.12f * %f\n",
+//    		 k,l,  mc_probs[kl], qb[kl], tmp_mb
+//		       , expMLclosing
+//	       	   , closing_stem_score
+//               );
      mm_printf(mm_verbose, "         alt1=%f, alt2=%f alt3=%f, alt4=%f,\n", closing_stem_score_alt1,
     		 closing_stem_score_alt2, closing_stem_score_alt3, closing_stem_score_alt4);
      ;
