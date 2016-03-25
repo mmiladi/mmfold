@@ -1448,7 +1448,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
   max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
   sequence      = vc->sequence;
 
-  int mm_verbose = 1;
+  int mm_verbose = 0;
 
 
 
@@ -1483,7 +1483,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
     		if (j <= n)// TODO: Assuming expMLbase is for unpaired in loop
     		{
-    			printf ("i=%d, j=%d, size:%d, ml_base=%f\n", i, j, initsize, expMLbase[initsize]);
     			M_mm[my_iindx[i] - j] = expMLbase[initsize]; // * expMLbase[size]; //TODO: size or size+1? Check expMLbase usages
     			//TODO: Reverse back above case of fixed ML_BASE37
 
@@ -1681,7 +1680,6 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 	l = k + mysize + 1;
 	if ( l-k <= turn ) //TODO: This skip should be here. right?
 		continue;
-	printf ("k:%d l:%d\n", k,l);
 	kl    = my_iindx[k] - l;
 //	if (qb[kl] > 0)
 //	{
@@ -1780,12 +1778,12 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
  	 FLT_OR_DBL tmp_mb = 0;
  	for(h = k +turn+1 ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
 		 mm_printf(mm_verbose, "    mb=(%d,%d,%d)\n", k, h, l);
-		 printf ("   tmp_mb+= %f * %f\n", qm[ my_iindx[(k+1)] - (h-1)]
+		 mm_printf(mm_verbose,"   tmp_mb+= %f * %f\n", qm[ my_iindx[(k+1)] - (h-1)]
 		                                                           ,qm1[jindx[l-1] + h]);
 		 tmp_mb +=
    			 qm[ my_iindx[(k+1)] - (h-1)]
    	                       		       * qm1[jindx[l-1] + h];
-		 printf ("   tmp_mb=%f\n", tmp_mb);
+		 mm_printf(mm_verbose,"   tmp_mb=%f\n", tmp_mb);
 
 //     for(h = k+4 +turn ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
     	 //TODO THIS 2+TURN is INACCURATE!!!
@@ -1832,20 +1830,33 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
                             exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
                           		  (k>1) ? S1[k-1] : -1, (l<n) ? S1[l+1] : 1, pf_params);
 
-     FLT_OR_DBL closing_stem_score =
-              exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
+     FLT_OR_DBL closing_stem_score_orig =
+
+              exp_E_MLstem(rtype[(unsigned char)ptype[jindx[l] + k]],
             		  (k>1) ? S1[k-1] : -1, (l<n) ? S1[l+1] : -1, pf_params)
              ;
+     FLT_OR_DBL closing_stem_score_new =
+
+                   exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
+                 		  -1, -1, pf_params)
+                  ;
+
+     FLT_OR_DBL closing_stem_score =
+
+                   exp_E_Stem((unsigned char)ptype[jindx[l] + k],
+                		   S1[l+1], S1[k-1],  0, pf_params)
+                  ;
 
     		 //exp_E_Stem((unsigned char)ptype[jindx[l] + k], -1, -1,0, pf_params);
 //    		 exp_E_Stem((unsigned char)ptype[jindx[l] + k], S1[k-1], S1[l+1],0, pf_params);
-     if (mc_probs[kl] < 1e-3 ) {
+
+    /* if (mc_probs[kl] < 1e-3 ) {
     	 printf("Warn: Ignore very low mc probable mc_probs[%d,%d]\n", k, l);
     	 continue;
      }
-
+*/
      probs[kl] +=
-    		 mc_probs[kl]/qb[kl] * tmp_mb * expMLclosing //* scale[2] todo: add this scale
+    		 mc_probs[kl]/qb[kl] * tmp_mb * expMLclosing * scale[2]
     		 * closing_stem_score
 
 // 	       	   * exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
