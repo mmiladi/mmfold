@@ -1726,6 +1726,7 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 
 	FLT_OR_DBL tmp_m = 0;
 
+
      // 2.7 Case1: i is unpaired
 
 
