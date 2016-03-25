@@ -1448,7 +1448,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
   max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
   sequence      = vc->sequence;
 
-  int mm_verbose = 0;
+  int mm_verbose = 1;
 
 
 
@@ -1462,6 +1462,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     n             = S[0];
     printf ("n=%d\n", n);
 
+    // Matrix to store probability not incorporated in IL case, so can corporate in ML cases
+    FLT_OR_DBL *probs_left  = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL)*((n+2)*(n+2)));
     // Matrix to store mm multiloop scores
     FLT_OR_DBL *M_mm  = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL)*((n+2)*(n+2)));
     FLT_OR_DBL *M1_mm  = (FLT_OR_DBL *) vrna_alloc(sizeof(FLT_OR_DBL)*((n+2)*(n+2)));
@@ -1472,6 +1474,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     	{
     		M_mm[my_iindx[i] - j] = 1.0;
     		M1_mm[my_iindx[i] - j] = 0;
+    		probs_left[my_iindx[i] - j] = 0;
     	}
     }
 
@@ -1539,6 +1542,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
             		qb[ij] *  // here we need mccaskill prob for initializing the hairpin case
             		exp_E_Hairpin(j-i-1, type, S1[i+1], S1[j-1], sequence+i-1 ,pf_params)
             		* scale[j-i+1]; // TODO: Important apparently scaling is needed for large pfs. Verify rescaling is correct!
+            probs_left[ij] = probs[ij];
             mm_printf(mm_verbose, "mc:%f / qb:%f q:%f * h:%f\n", mc_probs[ij], qb[ij], q[ij], exp_E_Hairpin(j-i-1, type, S1[i-1], S1[j-1], sequence+i-1 ,pf_params));
             		//TODO: IMPORTANT: Hopefully the sequence is passed correctly in above
 
@@ -1657,6 +1661,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
                   }
                   mm_printf (mm_verbose, "  prob_kl=%f before\n", probs[kl]);
                   probs[kl] += tmp2;
+                  //TODO: Important this subtraction value should be scaled i think..
+                  probs_left[ij] -= tmp2; // Closed bp prob passed to IL closing bp
+                  probs_left[kl] += tmp2;
                   mm_printf (mm_verbose, "  prob_kl=%f\n", probs[kl]);
                 }
               }
@@ -1699,6 +1706,15 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 		if (probs[kh] == 0 || mc_probs[kh] == 0) { // TODO: equivalent? qb[ig]==0
 		 continue;
 		}
+		if (probs_left[kh] < 0) {
+			printf("    Error! prob_left[%d,%d] is negative: %f\n", k, h, probs_left[kh]);
+			continue;
+		}
+		if (probs_left[kh] == 0) {
+			printf("    prob_left[%d,%d] is zero\n", k, h);
+				continue;
+		}
+
 		type      = (unsigned char)ptype[jindx[k] + h]; // TODO: Important sometime we find the type of reverse. Which one to use here?
 
 
@@ -1706,9 +1722,8 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 //		FLT_OR_DBL branch_score = exp_E_Stem(type, S1[k-1], S1[h+1],1, pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
 
 		FLT_OR_DBL branch_score = exp_E_MLstem(rtype[type], S1[h-1], S1[k+1], pf_params);
-//		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h];
-		tmp_m1 += qb[kh] *branch_score  * expMLbase[l-h];
-//				((l>h)?(expMLbase[1]**(l-h)):1)
+		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h];
+//		tmp_m1 += qb[kh] *branch_score  *				((l>h)?(expMLbase[1]**(l-h)):1)
 				; //TODO: Tune expMLbase calculations
 
 	}
@@ -1726,11 +1741,7 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 
 	FLT_OR_DBL tmp_m = 0;
 
-
      // 2.7 Case1: i is unpaired
-
-
-
 
      FLT_OR_DBL ML_unpaired_score = 0;
      //TODO: Initialize MM_m matrix for short ranges of around turn..
@@ -1752,15 +1763,16 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
   		 if (h+1 > l) {  // TODO: Important MUST be verified by myself
   			 continue;
   		 }
+
   		// TODO: Care for the External loops is not considered at all
 
-  		 tmp_m += M_mm[ my_iindx[k] - (h-1)] *
-  				expMLbase[h-k]
+  		 tmp_m += M_mm[ my_iindx[k] - (h-1)]
+//  				expMLbase[h-k]
 //  				 ((h>k)?(expMLbase[1]*(h-k)):1) //TODO: pretty sure h>k or h-k are wrong in boundary
-  		                * (1+M1_mm[ my_iindx[h] - l] );
-  		mm_printf(mm_verbose, "       tmp_m:%f * %f * %f\n",
-  				                M_mm[ my_iindx[k] - (h-1)],
-  				  				expMLbase[h-k]
+  		                + (1+M1_mm[ my_iindx[h] - l] );
+  		mm_printf(mm_verbose, "       tmp_m:%f  * %f\n",
+  				                M_mm[ my_iindx[k] - (h-1)]
+//  				  				,expMLbase[h-k]
 //  				                ((h>k)?(expMLbase[1]*(h-k)):1) //TODO: pretty sure h>k or h-k are wrong in boundary
   		  		                , M1_mm[ my_iindx[h] - l]);
     	 mm_printf(mm_verbose, "        tmp_m=%f\n", h, tmp_m);
@@ -1777,41 +1789,41 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
      }
      //TODO: Maybe we have to re introduce my_Z
  	 FLT_OR_DBL tmp_mb = 0;
- 	for(h = k +turn+1 ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
-		 mm_printf(mm_verbose, "    mb=(%d,%d,%d)\n", k, h, l);
-		 mm_printf(mm_verbose,"   tmp_mb+= %f * %f\n", qm[ my_iindx[(k+1)] - (h-1)]
-		                                                           ,qm1[jindx[l-1] + h]);
-		 tmp_mb +=
-   			 qm[ my_iindx[(k+1)] - (h-1)]
-   	                       		       * qm1[jindx[l-1] + h];
-		 mm_printf(mm_verbose,"   tmp_mb=%f\n", tmp_mb);
+// 	for(h = k +turn+1 ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
+//		 mm_printf(mm_verbose, "    mb=(%d,%d,%d)\n", k, h, l);
+//		 mm_printf(mm_verbose,"   tmp_mb+= %f * %f\n", M_mm[ my_iindx[(k+1)] - (h-1)],
+//				      M1_mm[my_iindx[h] - (l-1)] );
+//		 tmp_mb += M_mm[ my_iindx[(k+1)] - (h-1)] * M1_mm[my_iindx[h] - (l-1)];
+//		 tmp_mb_qm += qm[ my_iindx[(k+1)] - (h-1)] * qm1[jindx[l-1] + h];
 
-//     for(h = k+4 +turn ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
+//		 mm_printf(mm_verbose,"   tmp_mb=%f\n", tmp_mb);
+
+     for(h = k+4 +turn ; h < l-turn-1;  h++){  // TODO:  All loop boundary MUST be revised
     	 //TODO THIS 2+TURN is INACCURATE!!!
-/*
+
     	 int h2;
+    	 tmp_mb += 	 M1_mm[my_iindx[h] - (l-1)];
     	 for(h2 = k ; h2 < h;  h2++)
     	 {
 			 mm_printf(mm_verbose, "    mb=(%d,%d,%d,%d)\n", k, h2, h, l);
 
-			 tmp_mb +=
-	    			 qm[ my_iindx[(k+1)] - (h-1)]
-	    	                       		       * qm1[jindx[l-1] - h]
-
+			 tmp_mb += M_mm[ my_iindx[(k+1)] - (h2-1)] +
+					 M1_mm[my_iindx[h2] - (h-1)];
 //					 ((h2>k)?M_mm[ my_iindx[(k+1)] - (h2-1)]:1)
 //					 * M1_mm[ my_iindx[h2] - (h-1)]
 //					   * M1_mm[ my_iindx[h] - (l-1)]
 
 
 								; // TODO: Important why expMLclosing is type independent??
-			 mm_printf(mm_verbose, "       tmp_mb:%f * %f * %f * %f \n",
-					 M_mm[ my_iindx[(k+1)] - (h-1)]
-										   ,M1_mm[ my_iindx[h] - (l-1)]
+			 mm_printf(mm_verbose, "       tmp_mb:%f + %f + %f  \n",
+					 M_mm[ my_iindx[(k+1)] - (h2-1)] ,
+					 					 M1_mm[my_iindx[h2] - (h-1)],
+					 					 M1_mm[my_iindx[h] - (l-1)]
 															);
 
 			 mm_printf(mm_verbose, "      tmp_mb=%f\n", tmp_mb);
     	 }
-    	 */
+
     }
      mm_printf(mm_verbose, "probs(%d,%d)=%f before\n", k,l, probs[kl]);
 
@@ -1864,7 +1876,7 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 // 	       			            S1[l-1], S1[k+1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
 //     	 	 	 	 	 	 	S1[k+1], S1[l-1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
                 ;
-     mm_printf(mm_verbose, "probs(%d,%d): %.15f/%f * %f * %.10f * %f \n", k, l,  mc_probs[kl],qb[kl]
+     mm_printf(mm_verbose, "probs(%d,%d): %f/%f * %f * %.10f * %f \n", k, l,  mc_probs[kl],qb[kl]
                   , tmp_mb, expMLclosing, closing_stem_score);
      /*
       * Sample frpm LPfold
