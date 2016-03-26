@@ -1451,7 +1451,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
   int mm_verbose = 1;
 
 
-
+  printf ("vc->params: %d\n", vc->params);
   printf("pfscale=%f\n", pf_params->pf_scale);
   if((S != NULL) && (S1 != NULL)){
 
@@ -1710,10 +1710,11 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 			printf("    Error! prob_left[%d,%d] is negative: %f\n", k, h, probs_left[kh]);
 			continue;
 		}
-		if (probs_left[kh] == 0) {
-			printf("    prob_left[%d,%d] is zero\n", k, h);
+		if (probs_left[kh] < 0.1) {
+			printf("    prob_left[%d,%d] is small or zero:%f\n", k, h, probs_left[kh]);
 				continue;
 		}
+		printf("    prob_left[%d,%d]:%f p_mc:%f\n", k, h, probs_left[kh], mc_probs[kh]);
 
 		type      = (unsigned char)ptype[jindx[k] + h]; // TODO: Important sometime we find the type of reverse. Which one to use here?
 
@@ -1722,7 +1723,9 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 //		FLT_OR_DBL branch_score = exp_E_Stem(type, S1[k-1], S1[h+1],1, pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
 
 		FLT_OR_DBL branch_score = exp_E_MLstem(rtype[type], S1[h-1], S1[k+1], pf_params);
-		tmp_m1 += probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h];
+		FLT_OR_DBL m1_pf_score = probs[kh]/mc_probs[kh] * qb[kh] *branch_score * expMLbase[l-h];
+		tmp_m1 += (-log(m1_pf_score)  //-(k-h+1)*log(pf_params->pf_scale)
+				      )*pf_params->kT;
 //		tmp_m1 += qb[kh] *branch_score  *				((l>h)?(expMLbase[1]**(l-h)):1)
 				; //TODO: Tune expMLbase calculations
 
@@ -1769,7 +1772,7 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
   		 tmp_m += M_mm[ my_iindx[k] - (h-1)]
 //  				expMLbase[h-k]
 //  				 ((h>k)?(expMLbase[1]*(h-k)):1) //TODO: pretty sure h>k or h-k are wrong in boundary
-  		                + (1+M1_mm[ my_iindx[h] - l] );
+  		                + (M1_mm[ my_iindx[h] - l] ); //+1?
   		mm_printf(mm_verbose, "       tmp_m:%f  * %f\n",
   				                M_mm[ my_iindx[k] - (h-1)]
 //  				  				,expMLbase[h-k]
@@ -1802,12 +1805,16 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
     	 //TODO THIS 2+TURN is INACCURATE!!!
 
     	 int h2;
+    	 if (probs_left[my_iindx[h] - (l-1)] < 0.1)
+    		 continue;
     	 tmp_mb += 	 M1_mm[my_iindx[h] - (l-1)];
     	 for(h2 = k ; h2 < h;  h2++)
     	 {
 			 mm_printf(mm_verbose, "    mb=(%d,%d,%d,%d)\n", k, h2, h, l);
+			 if (probs_left[my_iindx[h2] - (h-1)] < 0.1)
+			     		 continue;
 
-			 tmp_mb += M_mm[ my_iindx[(k+1)] - (h2-1)] +
+			 tmp_mb += //M_mm[ my_iindx[(k+1)] - (h2-1)] +
 					 M1_mm[my_iindx[h2] - (h-1)];
 //					 ((h2>k)?M_mm[ my_iindx[(k+1)] - (h2-1)]:1)
 //					 * M1_mm[ my_iindx[h2] - (h-1)]
@@ -1859,6 +1866,8 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
                    exp_E_Stem((unsigned char)ptype[jindx[l] + k],
                 		   S1[l+1], S1[k-1],  0, pf_params)
                   ;
+     FLT_OR_DBL closing_stem_score_energy = E_Stem((unsigned char)ptype[jindx[l] + k],
+  		   S1[l+1], S1[k-1],  0, vc->params);
 
     		 //exp_E_Stem((unsigned char)ptype[jindx[l] + k], -1, -1,0, pf_params);
 //    		 exp_E_Stem((unsigned char)ptype[jindx[l] + k], S1[k-1], S1[l+1],0, pf_params);
@@ -1868,8 +1877,10 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
     	 continue;
      }
 */
+
      probs[kl] +=
-    		 mc_probs[kl]/qb[kl] * tmp_mb * expMLclosing * scale[2]
+    		 mc_probs[kl]/qb[kl] * exp(-tmp_mb/pf_params->kT)  //TODO: Scaling should be considered for exp
+    		 * expMLclosing * scale[2]
     		 * closing_stem_score
 
 // 	       	   * exp_E_MLstem((unsigned char)ptype[jindx[l] + k],
@@ -1877,7 +1888,7 @@ for(k = 1 ; k <= n-mysize-1;  k++){  // TODO:  All loop boundary MUST be revised
 //     	 	 	 	 	 	 	S1[k+1], S1[l-1],  pf_params) //TODO: In cool example from bolz_sampling S1 were exchanged, why?
                 ;
      mm_printf(mm_verbose, "probs(%d,%d): %f/%f * %f * %.10f * %f \n", k, l,  mc_probs[kl],qb[kl]
-                  , tmp_mb, expMLclosing, closing_stem_score);
+                  , exp(-tmp_mb/pf_params->kT), expMLclosing, closing_stem_score);
      /*
       * Sample frpm LPfold
       *
