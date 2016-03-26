@@ -1602,7 +1602,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 								unsigned char type_2_r  = rtype[type_2];  // TODO: Why do reverse thingy??
 								if(probs[ij] > 0){
 									mm_printf(mm_verbose, "     (i,j)==%d,%d\n", i, j);
-									mm_printf(mm_verbose, "      u1=%d,u2=%d\n", u1,u2);
 
 									FLT_OR_DBL new_score = probs[ij] * (mc_probs[kl]/mc_probs[ij])
 								* (qb[ij]/qb[kl])
@@ -1611,7 +1610,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 								         //						   * exp_E_Stem(type_2, S1[k+1], S1[l-1], 0, pf_params)
 								         //						   / exp_E_Stem(type, S1[i+1], S1[j-1], 0, pf_params) //TODO: Maybe type_r?
 								);
-									mm_printf (mm_verbose, "       type:%d, type2:%d\n", type, type_2_r);
 									mm_printf (mm_verbose, "       il_score: %f * (%f/%f) * (%f/%f) * (%f*%f)\n",
 											probs[ij], mc_probs[kl], mc_probs[ij]
 											                                  , qb[ij],qb[kl]
@@ -1619,7 +1617,6 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 									);
 
 
-									mm_printf (mm_verbose, "       il_score=%f\n", new_score);
 
 									/*
                   FLT_OR_DBL scaled_inloop_energy = scale[u1 + u2 + 2] *
@@ -1659,19 +1656,19 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 										mm_pf_error_msg("Constrained not supported");
 
 									}
-									mm_printf (mm_verbose, "  prob_kl=%f before\n", probs[kl]);
+									mm_printf (mm_verbose, "  p=%f before ",  probs[kl]);
 									probs[kl] += tmp2;
 									//TODO: Important this subtraction value should be scaled i think..
 									probs_left[ij] -= tmp2; // Closed bp prob passed to IL closing bp
 									probs_left[kl] += tmp2;
-									mm_printf (mm_verbose, "  prob_kl=%f\n", probs[kl]);
+									mm_printf (mm_verbose, " :: %f after\n", probs[kl]);
 								}
 							}
 						}
 					}
 				}
 
-
+				mm_printf (mm_verbose, "  p_il(%d,%d) final=%f  ", k, l, probs[kl]);
 				if(with_gquad){
 					mm_pf_error_msg("qquad not supperted yet!\n");
 					/* 2.5. bonding k,l as gquad enclosed by i,j */
@@ -1882,17 +1879,22 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     	 continue;
      }
 				 */
+				int outlook_range = 10;
+				int out_l = max(k-outlook_range, 1);
+				int out_r = max(l+outlook_range, n);
+				int out_lr = my_iindx[out_l] - out_r;
 				if (tmp_mb >= 0)
 					continue;
 				probs[kl] +=
 						((tmp_mb  //TODO: Scaling should be considered for exp
-								+ vc->params->MLclosing //* scale[2]
+//								+ vc->params->MLclosing
+								//* scale[2]
 								+ closing_stem_score_energy)
 								/ (-log(q[kl])*pf_params->kT/10.));
 				printf ("====%f\n",  (-log(q[kl])*pf_params->kT/10.));
-				mm_printf(mm_verbose, "probs(%d,%d): (%f + %f + %f) / %f \n",
-						k, l,
-						tmp_mb , vc->params->MLclosing , closing_stem_score_energy,	(-log(q[kl])*pf_params->kT/10.));
+//				probs_left[kl] += probs[kl]; //TODO: Add this one?
+				printf("probs(%d,%d): (%f + %f )  / %f \n",k, l,tmp_mb , closing_stem_score_energy , 	(-log(q[kl])*pf_params->kT/10.));
+
 				//     probs[kl] +=
 				//    		 mc_probs[kl]/qb[kl] * exp(-tmp_mb/pf_params->kT)  //TODO: Scaling should be considered for exp
 				//    		 * expMLclosing * scale[2]
