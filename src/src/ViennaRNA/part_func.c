@@ -1448,7 +1448,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 	max_real      = (sizeof(FLT_OR_DBL) == sizeof(float)) ? FLT_MAX : DBL_MAX;
 	sequence      = vc->sequence;
 
-	int mm_verbose = 1;
+	int mm_verbose = 0;
 
 
 	printf ("vc->params: %d\n", vc->params);
@@ -1721,8 +1721,8 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
 					FLT_OR_DBL branch_energy = E_MLstem(type, S1[h-1], S1[k+1], vc->params);
 					FLT_OR_DBL branch_pf = exp_E_MLstem(rtype[type], S1[h-1], S1[k+1], pf_params);
-					FLT_OR_DBL qb_energy = (-log(qb[kh])  //-(k-h+1)*log(pf_params->pf_scale)
-					)*pf_params->kT/10.;
+					FLT_OR_DBL qb_energy = (-log(qb[kh]) -(h-k+1)*log(pf_params->pf_scale)
+					                        )*pf_params->kT/10.;
 
 					//		printf ("branch_energy=%f, branch_pf=%f, log(pf)=%f", branch_energy, branch_pf, (-log(branch_pf))*pf_params->kT/10.);
 					mm_printf(mm_verbose, "   m1:%f * (%f + %f)\n", probs[kh], branch_energy, qb_energy);
@@ -1909,7 +1909,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 //				probs[kl] += (energy_kl + (-log(Q_out_kl)*pf_params->kT/10.))/(-log(Z_total)*pf_params->kT/10.);
 //				printf("probs(%d,%d)+=: (%f + %f )  / %f \n",k, l, energy_kl ,(-log(Q_out_kl)*pf_params->kT/10.), (-log(Z_total)*pf_params->kT/10.));
 
-				probs[kl] += exp(-energy_kl*10./pf_params->kT) * Q_out_kl / Z_total;
+				probs[kl] += exp(-energy_kl*10./pf_params->kT)*scale[l-k+1] * Q_out_kl / Z_total;
 				mm_printf(mm_verbose, "  probs(%d,%d)+=: (%f * %f )  / %f \n",k, l, exp(-energy_kl*10./pf_params->kT), Q_out_kl, Z_total);
 
 //				probs_left[kl] += probs[kl]; //TODO: Add this one?
