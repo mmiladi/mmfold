@@ -1700,16 +1700,16 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 
 
 					int kh = my_iindx[k] - h;
-					printf("       prob_left[%d,%d]:%f p_mc:%f\n", k, h, probs_left[kh], mc_probs[kh]);
+					mm_printf(mm_verbose, "       prob_left[%d,%d]:%f p_mc:%f\n", k, h, probs_left[kh], mc_probs[kh]);
 					if (probs[kh] == 0 || mc_probs[kh] == 0) { // TODO: equivalent? qb[ig]==0
 						continue;
 					}
 					if (probs_left[kh] < 0) {
-						printf("    Error! prob_left[%d,%d] is negative: %f\n", k, h, probs_left[kh]);
+						mm_printf(mm_verbose, "    Error! prob_left[%d,%d] is negative: %f\n", k, h, probs_left[kh]);
 						continue;
 					}
 					if (probs_left[kh] < 0.1) {
-						printf("    prob_left[%d,%d] is small or zero:%f\n", k, h, probs_left[kh]);
+						mm_printf(mm_verbose, "    prob_left[%d,%d] is small or zero:%f\n", k, h, probs_left[kh]);
 						continue;
 					}
 
@@ -1725,9 +1725,9 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 					)*pf_params->kT/10.;
 
 					//		printf ("branch_energy=%f, branch_pf=%f, log(pf)=%f", branch_energy, branch_pf, (-log(branch_pf))*pf_params->kT/10.);
-					printf ("   m1:%f * (%f + %f)\n", probs[kh], branch_energy, qb_energy);
+					mm_printf(mm_verbose, "   m1:%f * (%f + %f)\n", probs[kh], branch_energy, qb_energy);
 					FLT_OR_DBL m1_e_score = probs[kh] * (branch_energy + qb_energy);
-					printf ("   m1:%f\n", probs[kh], branch_energy, qb_energy);
+					mm_printf(mm_verbose, "   m1:%f\n", probs[kh], branch_energy, qb_energy);
 					tmp_m1 += m1_e_score;
 					//		tmp_m1 += qb[kh] *branch_score  *				((l>h)?(expMLbase[1]**(l-h)):1)
 					; //TODO: Tune expMLbase calculations
@@ -1812,7 +1812,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 					tmp_mb += 	 M1_mm[my_iindx[h] - (l-1)];
 					for(h2 = k ; h2 < h;  h2++)
 					{
-						mm_printf(mm_verbose, "    mb=(%d,%d,%d,%d)\n", k, h2, h, l);
+//						mm_printf(mm_verbose, "    mb=(%d,%d,%d,%d)\n", k, h2, h, l);
 						if (probs_left[my_iindx[h2] - (h-1)] < 0.1)
 							continue;
 
@@ -1821,16 +1821,27 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 						//					 ((h2>k)?M_mm[ my_iindx[(k+1)] - (h2-1)]:1)
 						//					 * M1_mm[ my_iindx[h2] - (h-1)]
 						//					   * M1_mm[ my_iindx[h] - (l-1)]
+						int h3;
+						for(h3 = k ; h3 < h2;  h3++)
+						{
+							mm_printf(mm_verbose, "    mb=(%d,%d, %d,%d,%d)\n", k, h3, h2, h, l);
+							if (probs_left[my_iindx[h3] - (h2-1)] < 0.1)
+								continue;
+
+							tmp_mb += //M_mm[ my_iindx[(k+1)] - (h2-1)] +
+									M1_mm[my_iindx[h3] - (h2-1)];
 
 
-						; // TODO: Important why expMLclosing is type independent??
-						mm_printf(mm_verbose, "       tmp_mb: %f + %f  \n",
-//								M_mm[ my_iindx[(k+1)] - (h2-1)] ,
-								M1_mm[my_iindx[h2] - (h-1)],
-								M1_mm[my_iindx[h] - (l-1)]
-						);
+							; // TODO: Important why expMLclosing is type independent??
+							mm_printf(mm_verbose, "       tmp_mb: %f + %f  + %f  \n",
+									//								M_mm[ my_iindx[(k+1)] - (h2-1)] ,
+									M1_mm[my_iindx[h3] - (h2-1)],
+									M1_mm[my_iindx[h2] - (h-1)],
+									M1_mm[my_iindx[h] - (l-1)]
+							);
 
-						mm_printf(mm_verbose, "      tmp_mb=%f\n", tmp_mb);
+							mm_printf(mm_verbose, "      tmp_mb=%f\n", tmp_mb);
+						}
 					}
 
 				}
@@ -1879,21 +1890,29 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
     	 continue;
      }
 				 */
-				int outlook_range = 10;
-				int out_l = max(k-outlook_range, 1);
-				int out_r = max(l+outlook_range, n);
-				int out_lr = my_iindx[out_l] - out_r;
+//				int outlook_range = 10;
+//				int out_l = max(k-outlook_range, 1);
+//				int out_r = max(l+outlook_range, n);
+//				int out_lr = my_iindx[out_l] - out_r;
 				if (tmp_mb >= 0)
 					continue;
-				probs[kl] +=
-						((tmp_mb  //TODO: Scaling should be considered for exp
-//								+ vc->params->MLclosing
-								//* scale[2]
-								+ closing_stem_score_energy)
-								/ (-log(q[kl])*pf_params->kT/10.));
-				printf ("====%f\n",  (-log(q[kl])*pf_params->kT/10.));
+
+				FLT_OR_DBL Z_total = q[my_iindx[1]-n];
+
+				FLT_OR_DBL energy_kl = (tmp_mb  //* scale[2]
+												+ closing_stem_score_energy)
+//												/ (-log(q[kl])*pf_params->kT/10.)
+												;
+
+				FLT_OR_DBL Q_out_kl = mc_probs[kl]/q[kl] * Z_total;
+
+//				probs[kl] += (energy_kl + (-log(Q_out_kl)*pf_params->kT/10.))/(-log(Z_total)*pf_params->kT/10.);
+//				printf("probs(%d,%d)+=: (%f + %f )  / %f \n",k, l, energy_kl ,(-log(Q_out_kl)*pf_params->kT/10.), (-log(Z_total)*pf_params->kT/10.));
+
+				probs[kl] += exp(-energy_kl*10./pf_params->kT) * Q_out_kl / Z_total;
+				mm_printf(mm_verbose, "  probs(%d,%d)+=: (%f * %f )  / %f \n",k, l, exp(-energy_kl*10./pf_params->kT), Q_out_kl, Z_total);
+
 //				probs_left[kl] += probs[kl]; //TODO: Add this one?
-				printf("probs(%d,%d): (%f + %f )  / %f \n",k, l,tmp_mb , closing_stem_score_energy , 	(-log(q[kl])*pf_params->kT/10.));
 
 				//     probs[kl] +=
 				//    		 mc_probs[kl]/qb[kl] * exp(-tmp_mb/pf_params->kT)  //TODO: Scaling should be considered for exp
