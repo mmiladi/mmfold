@@ -1719,7 +1719,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 					//		FLT_OR_DBL branch_score = exp_E_MLstem(type, S1[k+1], S1[h-1],pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
 					//		FLT_OR_DBL branch_score = exp_E_Stem(type, S1[k-1], S1[h+1],1, pf_params); //exp_E_Stem(type, S1[k+1], S1[h-1], 0, pf_params); // TODO: How about external case?
 
-					FLT_OR_DBL branch_energy = E_MLstem(rtype[type], S1[h-1], S1[k+1], vc->params);
+					FLT_OR_DBL branch_energy = E_MLstem(type, S1[h-1], S1[k+1], vc->params);
 					FLT_OR_DBL branch_pf = exp_E_MLstem(rtype[type], S1[h-1], S1[k+1], pf_params);
 					FLT_OR_DBL qb_energy = (-log(qb[kh])  //-(k-h+1)*log(pf_params->pf_scale)
 					)*pf_params->kT/10.;
@@ -1880,7 +1880,7 @@ mm_pf_create_bppm( vrna_fold_compound_t *vc,
 								S1[l+1], S1[k-1],  0, pf_params)
 								;
 				FLT_OR_DBL closing_stem_score_energy = E_Stem((unsigned char)ptype[jindx[l] + k],
-						S1[l+1], S1[k-1],  0, vc->params);
+						S1[l-1], S1[k+1],  0, vc->params);
 
 				//exp_E_Stem((unsigned char)ptype[jindx[l] + k], -1, -1,0, pf_params);
 				//    		 exp_E_Stem((unsigned char)ptype[jindx[l] + k], S1[k-1], S1[l+1],0, pf_params);
