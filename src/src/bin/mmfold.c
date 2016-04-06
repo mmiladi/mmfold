@@ -278,6 +278,8 @@ int main(int argc, char *argv[]){
     do_backtrack_mm = 0;
     do_bpp = md.compute_bpp_mm = args_info.partfunc_arg;
     md.compute_bpp = 1;
+    md.uniq_ML = 1;  // Needed for qm1 allocation
+
     //do_backtrack = 0;
   }
   /* MEA (maximum expected accuracy) settings */
