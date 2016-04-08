@@ -350,3 +350,18 @@ def plot_dp_ps(dp):
     np_arr, mfe_dict = parse_dp_ps_sparse(dp, True)
     print np_arr
     return plot_heat_maps(None, np_arr, basename(dp), 'basepairs', inverse=True, interactive=False)
+
+
+### Code snippet for Vienna python pavckage
+# RNA.cvar.fold_constrained = 0
+# structure = ""
+# print RNA.pf_fold("AAGGGAAACCCA", structure)
+# # RNA.get_subseq_F(4,11)
+# f5_p,c_p,fML_p,fM1_p,indx_p,ptype_p = [""]*6
+# RNA.export_fold_arrays(f5_p,c_p,fML_p,fM1_p,indx_p,ptype_p)
+# # RNA.alloc_sequence_arrays
+# from RNA import fold_compound
+
+# comp = RNA.fold_compound
+# RNA.export_fold_arrays
+# getBPPM("AACGGGAAAGCCA")
