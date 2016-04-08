@@ -213,7 +213,7 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
     ax.set_title(title)
 
-    ticks = np.arange(0, mat.shape[0],10)
+    ticks = np.arange(0, mat.shape[0], 10)
     ax.set_xticks(ticks)
     ax.set_yticks(ticks)
 
@@ -271,3 +271,82 @@ def my_heatmaps(rna_seq, context_all, context_len, insert_pos=None, filename='he
     print len(rna_seq), len(context_selection), insert_pos
     plot_heat_maps(get_mfe_probs(whole_seq_context), getBPPM(whole_seq_context), filename, what,
                    inverse=inverse, interactive=interactive, gene_loc=[insert_pos, insert_pos+len(rna_seq)])
+
+##################################################################################
+# Plot ps dotplot files with option to support large files with sparse storage
+
+
+def parse_dp_ps_sparse(ps_file, sparse=False):
+    '''Extracts base pair probabliies from vienna ps file
+    returns: Numpy 2d array of form arr[i,j]=p(i,j) '''
+
+    # Extract sequence from ps file
+    myseq = ""
+    read_seq = False
+    with open(ps_file) as in_ps:
+        for line in in_ps:
+            if "/sequence" in line:
+                read_seq = True
+            elif read_seq and ") } def" in line:
+                read_seq = False
+            elif read_seq:
+                myseq += line.rstrip().rstrip("\\")
+    #     print ps_file.rstrip("_dp.ps") , myseq
+
+    import re
+
+    # e.g. 52 56 0.020043762 ubox
+    ureg = re.compile(r'^(\d+)\s+(\d+)\s+(\d+\.\d+)\s+[ul]box\s*')
+
+    # e.g. 1 70 0.9500000 lbox
+    #     lreg = re.compile(r'^(\d+)\s+(\d+)\s+(\d+\.\d+)\s+lbox\s*')
+
+    bp_prob_dict = dict()
+    mfe_struct_dict = dict()
+    from scipy.sparse import csr_matrix
+    if sparse:
+        bp_prob_mat = csr_matrix((len(myseq), len(myseq)))
+
+    else:
+        bp_prob_mat = np.zeros((len(myseq), len(myseq)))
+
+    with open(ps_file) as in_ps:
+        for line in in_ps:
+            if "ubox" in line or "lbox" in line:
+                um = ureg.match(line)
+                if um:
+                    i, j, sqrp = um.groups()
+
+                    #                     print i, j, sqrp
+
+                    # keys are pair of indexes as smaller:larger
+                    key = ":".join([i, j])
+                    if "ubox" in line:  # upper triangle of probs
+                        assert (key not in bp_prob_dict)
+                        bpprob = float(sqrp)*float(sqrp)
+                        bp_prob_dict[key] = bpprob
+
+                        i, j = int(i), int(j)
+                        bp_prob_mat[i-1, j-1] = bpprob
+                    else:  # lower part mfe struct
+                        i, j = int(i), int(j)
+                        assert (key not in mfe_struct_dict)
+                        mfe_struct_dict[key] = 1
+
+    return bp_prob_mat, mfe_struct_dict
+
+
+def bpp_dict_to_np_array(d, seq):
+    np_arr = np.zeros((len(seq), len(seq)))
+    for pair in d:
+        i, j = pair.split(':')
+        np_arr[i, j] = d[pair]
+    return np_arr
+
+
+def plot_dp_ps(dp):
+    from os.path import basename
+#     from pankoff_lib import parse_dp_ps
+    np_arr, mfe_dict = parse_dp_ps_sparse(dp, True)
+    print np_arr
+    return plot_heat_maps(None, np_arr, basename(dp), 'basepairs', inverse=True, interactive=False)
