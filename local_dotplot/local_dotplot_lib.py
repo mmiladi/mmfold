@@ -3,43 +3,66 @@ import numpy as np
 from altschulEriksonDinuclShuffle import dinuclShuffle
 import random
 import os
+import re
 
 kT = (37+273.15)*1.98717/1000.0  # /* kT in kcal/mol */
 
 VIENNA_BIN_PATH = '/home/milad/software/bin/'
-RNAFOLD = 'RNAfold -p --noPS '
+RNAFOLD = 'RNAfold -p --noPS  '
 RNAPLFOLD = 'RNAplfold '
+QUAKE_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_turner2004_ML_up_penalty.par '
+ANDERO_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_andronescu2007.par '
 
 
-def compute_part_func(infile_fa, seq_names, use_plfold=False, use_cache=True):
+def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, which_params='turner',  dangles=2,
+                      use_cache=False):
     '''Runs Vienna RNAfold/RNAplfold with partition function for all sequences inside input fasta file
     If use_cache, it does nothing if If the ps file with same paramaters exists '''
     from subprocess import Popen, PIPE
     #     print "compute_part_func(", infile_fa, seq_names
     if use_plfold:
-        out_dir = './' + RNAPLFOLD.replace(' ', '')
+        out_dir = outdir_path + "/" + RNAPLFOLD.replace(' ', '')
     else:
-        out_dir = './' + RNAFOLD.replace(' ', '')
+        out_dir = outdir_path + "/" + RNAFOLD.replace(' ', '')
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
 
+    if not os.path.isfile(infile_fa):
+        raise IOError("Fastafile not found: {}".format(infile_fa))
+
     all_in_cache = all([os.path.isfile(os.path.join(out_dir, sname+'_dp.ps')) for sname in seq_names])
     if all_in_cache and use_cache:
+        raise NotImplementedError("Sequence names for caching are not correctly set")
         return out_dir
 
     with open(infile_fa) as in_rna:
+        arg_param = ""
+        if which_params == 'quake':
+            arg_param += " -P %s " % QUAKE_PARAM_FILE
+            dangles = 0
+        elif which_params.startswith('andero'):
+            assert dangles == 2
+            arg_param += " -P %s " % ANDERO_PARAM_FILE
+        elif which_params != 'turner':
+            assert dangles == 2
+            raise RuntimeError("Unknown parameter option {}".format(which_params))
+
+        assert dangles >= 0 and dangles <= 2
+        arg_param += " --dangles {} ".format(dangles)
 
         if use_plfold:
-            p = Popen(('cd %s;' %out_dir) + VIENNA_BIN_PATH + RNAPLFOLD , stdin=in_rna, shell=True, stdout=PIPE, stderr=PIPE)
+            p = Popen(('cd %s;' %out_dir) + VIENNA_BIN_PATH + RNAPLFOLD + arg_param, stdin=in_rna, shell=True, stdout=PIPE, stderr=PIPE)
         else:
-            p = Popen(('cd %s;' %out_dir) + VIENNA_BIN_PATH +  RNAFOLD , stdin=in_rna, shell=True, stdout=PIPE, stderr=PIPE)
+            p = Popen(('cd %s;' %out_dir) + VIENNA_BIN_PATH +  RNAFOLD + arg_param, stdin=in_rna, shell=True, stdout=PIPE, stderr=PIPE)
 
         out, err = p.communicate()
         if err:
             print "Error in calling RNAfold for ", infile_fa
             print out
             print err
-            if not use_plfold:
+
+            # With long sequences RNAfold prints scalign factor to stderr
+            if (not use_plfold and not ("scaling factor" in err or "free energy" in err)):
                 raise RuntimeError
 
     return out_dir
@@ -273,6 +296,58 @@ def my_heatmaps(rna_seq, context_all, context_len, insert_pos=None, filename='he
                    inverse=inverse, interactive=interactive, gene_loc=[insert_pos, insert_pos+len(rna_seq)])
 
 ##################################################################################
+# TODO: Merge to parse_dp_ps*( methods it should be easy!
+def parse_dp_ps(ps_file):
+    '''Extracts base pair probabliies from vienna ps file
+    returns: Dictinary of form dict[i:j]=p(i,j) '''
+
+    # Extract sequence from ps file
+    myseq = ""
+    read_seq = False
+    with open(ps_file) as in_ps:
+        for line in in_ps:
+            if "/sequence" in line:
+                read_seq = True
+            elif read_seq and ") } def" in line:
+                read_seq = False
+            elif read_seq:
+                myseq += line.rstrip().rstrip("\\")
+    #     print ps_file.rstrip("_dp.ps") , myseq
+
+    ureg = re.compile(r'^(\d+)\s+(\d+)\s+(\d+\.\d+)\s+[ul]box\s*')
+    bp_prob_dict = dict()
+    bp_prob_mat = np.zeros((len(myseq), len(myseq)))
+
+    with open(ps_file) as in_ps:
+        for line in in_ps:
+            if "ubox" in line or "lbox" in line:
+                um = ureg.match(line)
+                if um:
+                    i, j, sqrp = um.groups()
+                    sqrp = float(sqrp)
+                    i, j = int(i), int(j)
+                    #                     print i, j, sqrp
+                    # TODO: Keys and dict not used remov it
+                    if "lbox" in line:
+                        # keys are pair of indexes as smaller:larger
+#                         key = ":".join(sorted([i, j], reverse=False))
+                        assert sqrp == 0.95
+                        bpprob = 1
+                        bp_prob_mat[j-1, i-1] = bpprob
+                    else:
+                        # keys are pair of indexes as smaller:larger
+#                         key = ":".join(sorted([i, j], reverse=True))
+                        bpprob = sqrp * sqrp
+                        bp_prob_mat[i-1, j-1] = bpprob
+#                     assert (key not in bp_prob_dict)
+#                     bp_prob_dict[key] = bpprob
+
+
+
+    return bp_prob_mat
+
+
+
 # Plot ps dotplot files with option to support large files with sparse storage
 
 
