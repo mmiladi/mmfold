@@ -18,6 +18,7 @@ CIS_MRNA_PATH = '/home/milad/DataBase/CisReg/Cis_include_mRNA/'
 
 VIENNA_BIN_PATH = '/home/milad/software/bin/'
 QUAKE_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_turner2004_ML_up_penalty.par '
+ANDERO_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_andronescu2007.par '
 RNAFOLD = 'RNAfold -p --noPS '
 RNAPLFOLD = 'RNAplfold '
 
@@ -75,7 +76,7 @@ def dotbracket_to_dict(struct):
     return pairs
 
 
-def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, quake_params=False,
+def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, which_params='turner', dangles=2,
                       use_cache=False):
     '''Runs Vienna RNAfold/RNAplfold with partition function for all sequences inside input fasta file
     If use_cache, it does nothing if If the ps file with same paramaters exists '''
@@ -99,8 +100,18 @@ def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, 
     with open(infile_fa) as in_rna:
 
         arg_param = ""
-        if quake_params:
-            arg_param = " -P %s " % QUAKE_PARAM_FILE
+        if which_params == 'quake':
+            arg_param += " -P %s " % QUAKE_PARAM_FILE
+            dangles = 0
+        elif which_params.startswith('andero'):
+            assert dangles == 2
+            arg_param += " -P %s " % ANDERO_PARAM_FILE
+        elif which_params != 'turner':
+            assert dangles == 2
+            raise RuntimeError("Unknown parameter option {}".format(which_params))
+
+        assert dangles >= 0 and dangles <= 2
+        arg_param += " --dangles {} ".format(dangles)
 
         if use_plfold:
             p = Popen(('cd %s;' %out_dir) + VIENNA_BIN_PATH + RNAPLFOLD + arg_param, stdin=in_rna, shell=True, stdout=PIPE, stderr=PIPE)
