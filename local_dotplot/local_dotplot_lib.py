@@ -39,7 +39,7 @@ def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, 
         arg_param = ""
         if which_params == 'quake':
             arg_param += " -P %s " % QUAKE_PARAM_FILE
-            dangles = 0
+#             dangles = 0
         elif which_params.startswith('andero'):
             assert dangles == 2
             arg_param += " -P %s " % ANDERO_PARAM_FILE
@@ -138,9 +138,9 @@ def get_mfe_probs(rna_context_seq):
     count = 0
     mfe_probs = np.zeros((len(rna_context_seq), len(rna_context_seq)))
 
-    for l_pos in range (0, len(rna_context_seq)):
-        for r_pos in range (l_pos+3, len(rna_context_seq)+1):
-            sub_seq = rna_context_seq[l_pos:r_pos]
+    for l_pos in range(0, len(rna_context_seq)):
+        for r_pos in range(l_pos+3, len(rna_context_seq)):
+            sub_seq = rna_context_seq[l_pos:r_pos+1]
             bp_prob = RNA.get_pr(l_pos+1, r_pos+1)
             if bp_prob < 1e-3:  # 0:
                 continue
@@ -207,7 +207,7 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
     if inverse:
         cmap = plt.get_cmap('hot_r')
-        my_hot_cmap = truncate_colormap(cmap, 0.1, 0.95)  # Discards super white range of hit map
+        my_hot_cmap = truncate_colormap(cmap, 0.2, 0.95)  # Discards super white range of hit map
     else:
         cmap = plt.get_cmap('hot')
         my_hot_cmap = truncate_colormap(cmap, 0.15, 1.0)  # Discards super white range of hit map
@@ -285,15 +285,27 @@ def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', in
 
 
 def my_heatmaps(rna_seq, context_all, context_len, insert_pos=None, filename='heatmap', what='all', 
-                inverse=True, interactive=False):
+                inverse=True, interactive=False, motif_len=None):
 
-    context_selection = context_all[0:context_len]
-    if insert_pos is None:
-        insert_pos = len(context_selection)/2
-    whole_seq_context = context_selection[:insert_pos] + rna_seq + context_selection[insert_pos:]
-    print len(rna_seq), len(context_selection), insert_pos
-    plot_heat_maps(get_mfe_probs(whole_seq_context), getBPPM(whole_seq_context), filename, what,
-                   inverse=inverse, interactive=interactive, gene_loc=[insert_pos, insert_pos+len(rna_seq)])
+    if context_all == None:
+        print "Full sequence and context given"
+        whole_seq_context = rna_seq
+        gene_loc = [insert_pos, insert_pos+motif_len]
+    else:
+        context_selection = context_all[0:context_len]
+        if insert_pos is None:
+            insert_pos = len(context_selection)/2
+        whole_seq_context = context_selection[:insert_pos] + rna_seq + context_selection[insert_pos:]
+        print whole_seq_context
+        print len(rna_seq), len(context_selection), insert_pos
+        gene_loc = [insert_pos, insert_pos+len(rna_seq)]
+        
+    if what == 'basepairs':
+        plot_heat_maps(None, getBPPM(whole_seq_context), filename, what,
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+    else:
+        plot_heat_maps(get_mfe_probs(whole_seq_context), getBPPM(whole_seq_context), filename, what,
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
 
 ##################################################################################
 # TODO: Merge to parse_dp_ps*( methods it should be easy!

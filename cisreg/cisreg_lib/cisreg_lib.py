@@ -102,7 +102,7 @@ def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, 
         arg_param = ""
         if which_params == 'quake':
             arg_param += " -P %s " % QUAKE_PARAM_FILE
-            dangles = 0
+#             dangles = 0
         elif which_params.startswith('andero'):
             assert dangles == 2
             arg_param += " -P %s " % ANDERO_PARAM_FILE
@@ -186,7 +186,7 @@ def get_expected_accuracy(reference_struct, dp_matrix):
 
 #     print "    TP_score: %.2f" % (sum_TP_prob/len(reference_struct_dict))
     if len(reference_struct_dict) == 0:
-        return 0
+        return 1
     return (sum_TP_prob/len(reference_struct_dict))
 
 
