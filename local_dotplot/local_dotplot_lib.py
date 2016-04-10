@@ -203,14 +203,16 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
         if gene_loc is not None:
             print gene_loc
             assert len(gene_loc) == 2
-            ax.plot(np.arange(gene_loc[0], gene_loc[1]), np.arange(gene_loc[0], gene_loc[1]), c='green', linewidth=3)
+            ax.plot(np.arange(gene_loc[0]-1, gene_loc[1]), np.arange(gene_loc[0]-1, gene_loc[1]), c='green', linewidth=2)
+            ax.plot(np.ones(gene_loc[1]-gene_loc[0]+1)*(gene_loc[1]-1), np.arange(gene_loc[0]-1, gene_loc[1]), c='green', linewidth=1)
+            ax.plot(np.arange(gene_loc[0]-1, gene_loc[1]), np.ones(gene_loc[1]-gene_loc[0]+1)*(gene_loc[0]-2),  c='green', linewidth=1)
 
     if inverse:
         cmap = plt.get_cmap('hot_r')
-        my_hot_cmap = truncate_colormap(cmap, 0.2, 0.95)  # Discards super white range of hit map
+        my_hot_cmap = truncate_colormap(cmap, 0.35, 0.99)  # Discards super white range of hit map
     else:
         cmap = plt.get_cmap('hot')
-        my_hot_cmap = truncate_colormap(cmap, 0.15, 1.0)  # Discards super white range of hit map
+        my_hot_cmap = truncate_colormap(cmap, 0.35, 1.0)  # Discards super white range of hit map
 
 #     plugins.connect(fig, plugins.MousePosition(fontsize=14))
 
@@ -257,7 +259,7 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
     ax.set_ylim((seq_len-0.5, -.5))
 
 
-def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', inverse=False, interactive=False, gene_loc=[]):
+def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', inverse=False, interactive=False, gene_loc=None):
     if what == 'all':
         fig = plt.figure(figsize=(20, 5))
         subplot_num = 140
@@ -279,6 +281,8 @@ def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', in
                    inverse=inverse, interactive=interactive, gene_loc=gene_loc)
 
     #     fig.savefig(filename+'.png', dpi=800)
+    if inverse:
+        filename += '_inverse'
     fig.savefig(filename+'.pdf', dpi=100)
     fig.savefig(filename+'.svg', dpi=100, format="svg")
 #     return fig
@@ -431,12 +435,13 @@ def bpp_dict_to_np_array(d, seq):
     return np_arr
 
 
-def plot_dp_ps(dp):
-    from os.path import basename
+def plot_dp_ps(dp, sparse=False, gene_loc=None, inverse=False):
+    from os.path import basename, dirname
 #     from pankoff_lib import parse_dp_ps
-    np_arr, mfe_dict = parse_dp_ps_sparse(dp, True)
+    np_arr, mfe_dict = parse_dp_ps_sparse(dp, sparse)
     print np_arr
-    return plot_heat_maps(None, np_arr, basename(dp), 'basepairs', inverse=True, interactive=False)
+    return plot_heat_maps(None, np_arr, dirname(dp)+"/"+basename(dp), 'basepairs', gene_loc=gene_loc,
+                          inverse=inverse, interactive=False)
 
 
 ### Code snippet for Vienna python pavckage

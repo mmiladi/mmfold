@@ -1,3 +1,5 @@
+dp-ps-Cis-flanks*
+tmp*/
 *.o
 *.?o
 *.??o
@@ -6,3 +8,5 @@
 RNA[a-zA-Z]*
 *ss.ps
 *dp.ps
+libRNA.a
+Makefile.in
