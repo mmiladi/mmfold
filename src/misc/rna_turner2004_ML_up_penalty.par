@@ -8101,7 +8101,21 @@
   -130
 
 # ML_params
-      1000       0     930    3000     -90    -220
+/* F = cu*n_unpaired + cc + ci*loop_degree (+TermAU) */
+/*   cu      cu_dH   cc    cc_dH      ci     ci_dH  */
+
+/*Turner */
+/*      0       0     930    3000     -90    -220 */
+
+/* sample_trna2*/
+/*    1000       0     930    3000     -250    -220 */
+
+/* Andreonseco*/
+/*   4	     0	   440	     0	     3	     0*/
+
+ /*5       0     430    3000     -50    -220*/
+ 
+   50      0     930    3000     -190    -220 
 
 # NINIO
      60     320     300
