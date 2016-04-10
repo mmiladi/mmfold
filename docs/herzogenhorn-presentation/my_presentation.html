@@ -149,14 +149,90 @@ layout: false
 
 .center[
 
-## RNA Dotplots, 
-## McCaskill 
-### and the curse of Locality
+## RNA Nearest Neighbor Energy Model 
+###  and 
+## The Curse of Locality
+# 
+# 
+# 
+#### Milad Miladi
+#### Herzogenhorn, April 2016 
 ]
 ---
 layout: false
 
-.center[Probability of an structure in the ensemble]
+---
+### .center[Target example]
+- A classic tRNA!
+
+![](X70810.2_centroid.svg)
+![](X70810.2_heatmap.svg)
+
+---
+### .center[Test 1: Extension]
+  
+  - Di-Nucleotide shuffled genomic context
+
+  - tRNA position:
+     - close to the center of the extension
+     - according to a normal distribution
+  
+  - Target: a base-pair from *the acceptor stem*
+.center[![](X70810.2_extend.svg)]
+
+
+---
+### .center[Probability of the selected base-pair (by global folding)]
+
+- Context-length: 
+    - Total length of the left and right extensions 
+
+- Each time the context is re-shuffled and re-sampled
+
+![](tRNA-extend.svg) ![](X70810.2_extend_small.svg)
+
+<!-- ---
+.center[Probability of the selected base-pair, by global folding]
+- Each time the context is re-shuffled and re-sampled
+![](tRNA-Log--extend.svg) ![](X70810.2_extend_small.svg)
+ -->
+
+---
+.center[Test 2: Split]
+.center[![](X70810.2_split.svg) ![](X70810.2_stem_split.svg)]
+
+---
+### .center[Probability of the selected base-pair (by global folding)]
+- Each time the context is re-shuffled and re-sampled
+![](tRNA-split.svg) ![](X70810.2_split_small.svg)
+
+![](stem-split.svg) ![](X70810.2_stem_split_small.svg)
+
+---
+### .center[Problems]
+* **Locality** problem: *(extend)*
+    - Desired base-pair probabilities easily distorted 
+    - Specially for the closing stems of multi-loops
+.right[![](X70810.2_extend_small.svg)]
+
+* **Anti-locality** problem: *(split)*
+    - No matter how long a sequence is ..
+    
+    - No matter what is inside ..
+    
+    - Few distant compatible base-pairs make an strong prediction!
+.right[![](X70810.2_stem_split_small.svg)]
+
+---
+### .center[What is missing?]
+Turner?
+* Turner energy model should not be that much mad
+
+McCaskill?
+* McCaskill algorithm has no heuristics or simplification..
+
+---
+### .center[Probability of an structure in the ensemble]
 .center[![](prob-vis.svg)]
 - BW:
      - Boltzmann Weight
@@ -194,7 +270,7 @@ layout: false
 ![](X70810.2.svg)
 ]
 
----
+<!-- ---
 
 layout: false
 .my-left-column[.center[##McCaskill, 1990, ]
@@ -210,6 +286,28 @@ layout: false
 
 ![](X70810.2.svg)
 ]
+
+
+ -->
+
+
+---
+### .center[What we have been missing?]
+#### The concept of noise and context in nowadays genomic biology
+#### The fact that McCaskill's mindset was chemistry, not genome crawling
+![](sample_stem_dp.svg)
+---
+---
+### .center[Can we solve it?]
+### Calculating the base-pair probabilities with in inside algorithm
+
+1. Base case: P_Hairpin(i,j)
+2. Inner Loop: P_kl(ij| kl is closing ij )
+3. Multiloop: coming soon..
+
+.center[<img align="bottom" src="despicable-me.jpg"  width="600" > ]
+
+---
 
 ---
 
@@ -239,42 +337,9 @@ layout: false
 
 .center[![](dotplot-evolution.svg)]
 
-*(CHURKIN et al., 2013) proposes an alternative for bistable RNAs
+<!-- *(CHURKIN et al., 2013) proposes an alternative for bistable RNAs -->
 
-*RNAstruct provides a confusing colored dot-plot
-
----
-
-###.center[Plotting medium has fixed size ]
-- Right plot is only zoomed out, exact same probabilities as left
-- The Human perception mainly ignores the small dots.
-
-![](X70810.2_medium.svg)
-![](X70810.2_scaling_problem.svg)
-
----
-###.center[How low are the low probabilities? ]
-.center[![](X70810.2_scaling_problem.svg)]
-
----
-.center[A simple alternative]
-.center[![](sample_trna2_bp_probs.svg)]
-
----
-.center[A simple alternative]
-.center[![](sample_trna2_bp_probs_inverse.svg)]
-
----
-### .center[Other limitations ]
-
-- Basepair probabilities are independent of each other.
-
-- Therefor no explicit relationship between cells can be encoded!
-
-- No one knows which stems exist together.
-    - Exception is for the case of crossing base-pairs.
-
-.center[![](X70810.2-annotated.svg)]
+<!-- *RNAstruct provides a confusing colored dot-plot -->
 
 ---
 layout: false
@@ -285,168 +350,6 @@ layout: false
 ### .gray[McCaskill ]
 ## and the curse of Locality
 ]
-
----
-.center[Example of a  cute tRNA!]
-![](X70810.2_centroid.svg)
-![](X70810.2_heatmap.svg)
-
----
-.center[Let's play a game with this cute tRNA.]
-
-  - Extend it from both ends
-  - Di-Nucleotide shuffled genomic context
-  - tRNA position is according to a normal distribution
-  - On average close to the center of the context 
-.center[![](X70810.2_extend.svg)]
-
-
----
-.center[Probability of the selected base-pair, by global folding]
-- Each time the context is re-shuffled and re-sampled
-![](tRNA-extend.svg) ![](X70810.2_extend_small.svg)
-
----
-.center[Probability of the selected base-pair, by global folding]
-- Each time the context is re-shuffled and re-sampled
-![](tRNA-Log--extend.svg) ![](X70810.2_extend_small.svg)
-
----
-<!-- .small[.footnote[*And always hides]] -->
-.center[Well this is the classic local folding problem]
- 
-1. *Lfold* (2004): 
-    * Ignore any possible base-pair longer than L.    
-.center[![](Lfold.svg)]
-
-2. *RNAplFold*(2006): 
-    * A follow-up: Enough to believe *Lfold* was not good enough  <img align="top" src="emoji.jpg"  width="22" >
-    * *Windowing*:
-        * Pragmatic
-        * Usually works 
-        * Can be found in the pocket of any bioinformatician
-
-  
-
----
-Our group, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
-
-- Parameterization is very crucial to have accurate RNAplFold
- 
-*Strong parameter dependency* of a tool:
-- Can be a sign that it does not (generally) function as supposed to do so.
-
-We have also shown that: 
-- The borders of windows are biased
-
-
-
----
-Our group, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
-
-- Parameterization is very crucial to have accurate RNAplFold
- 
-*Strong parameter dependency* of a tool:
-- Can be a sign that it does not (generally) function as supposed to do so.
-
-We have also shown that: 
-- The boundaries are biased
-
-In practice:
-- plFold barely predicts more than simple hairpins.  .small[(Quoted from Sita)]
-
-
----
-Our group, (*Sita, Daniel, Mathias, et al.*, 2012), concisely showed that: 
-
-- Parameterization is very crucial to have accurate RNAplFold
- 
-*Strong parameter dependency* of a tool:
-- Can be a sign that it does not (generally) function as supposed to do so.
-
-We have also shown that: 
-- The boundaries are biased
-
-In practice:
-- plFold barely predicts more than simple hairpins. .small[(Quoted from Sita)]
-
-.center[Welcome to the world of hairpins!]
-.center[![](hairpin-minion.svg)]
----
-
-.center[### Got boring? 
-### Let's play another game]
-
----
-.center[The second game: Splitting]
-.center[![](X70810.2_split.svg)]
-
----
-.center[Probability of the selected base-pair, by global folding]
-- Each time the context is re-shuffled and re-sampled
-![](tRNA-split.svg) ![](X70810.2_split_small.svg)
-
----
-.center[The second game, next round]
-.center[![](X70810.2_stem_split.svg)]
----
-.center[Probability of the selected base-pair, by global folding]
-- Each time the context is re-shuffled and re-sampled
-
-![](stem-split.svg) ![](X70810.2_stem_split_small.svg)
-
----
-### .center[A nightmare..]
-* No matter how long a sequence is
-* No matter what is inside
-* Few compatible basepairs make an strong prediction!
-
----
-### .center[A nightmare..]
-* No matter how long a sequence is
-* No matter what is inside
-* Few compatible basepairs make an strong prediction!
-
-### .center[What is missing?]
-Turner?
-* Turner energy model should not be that much mad
-
-McCaskill?
-* McCaskill algorithm has no heuristics or simplification..
-
----
-### .center[A nightmare..]
-* No matter how long a sequence is
-* No matter what is inside
-* Few compatible basepairs make an strong prediction!
-
-### .center[What is missing?]
-Turner?
-* Turner energy model should not be that much mad
-
-McCaskill?
-* McCaskill algorithm has no heuristics or simplification..
-
-### .center[Let's google it!]
-
----
-Google
----
-### .center[What we have been missing?]
-#### The concept of noise and context in nowadays genomic biology
-#### The fact that McCaskill's mindset was chemistry, not genome crawling
-![](sample_stem_dp.svg)
----
----
-### .center[Can we solve it?]
-### Calculating the base-pair probabilities with in inside algorithm
-
-1. Base case: P_Hairpin(i,j)
-2. Inner Loop: P_kl(ij| kl is closing ij )
-3. Multiloop: coming soon..
-
-.center[<img align="bottom" src="despicable-me.jpg"  width="600" > ]
-
 
 
     </textarea>
