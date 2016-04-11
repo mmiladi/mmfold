@@ -158,80 +158,9 @@ layout: false
 #### Milad Miladi
 #### Herzogenhorn, April 2016 
 ]
----
-layout: false
 
 ---
-### .center[Target example]
-- A classic tRNA!
 
-![](X70810.2_centroid.svg)
-![](X70810.2_heatmap.svg)
-
----
-### .center[Test 1: Extension]
-  
-  - Di-Nucleotide shuffled genomic context
-
-  - tRNA position:
-     - close to the center of the extension
-     - according to a normal distribution
-  
-  - Target: a base-pair from *the acceptor stem*
-.center[![](X70810.2_extend.svg)]
-
-
----
-### .center[Probability of the selected base-pair (by global folding)]
-
-- Context-length: 
-    - Total length of the left and right extensions 
-
-- Each time the context is re-shuffled and re-sampled
-
-![](tRNA-extend.svg) ![](X70810.2_extend_small.svg)
-
-<!-- ---
-.center[Probability of the selected base-pair, by global folding]
-- Each time the context is re-shuffled and re-sampled
-![](tRNA-Log--extend.svg) ![](X70810.2_extend_small.svg)
- -->
-
----
-.center[Test 2: Split]
-.center[![](X70810.2_split.svg) ![](X70810.2_stem_split.svg)]
-
----
-### .center[Probability of the selected base-pair (by global folding)]
-- Each time the context is re-shuffled and re-sampled
-![](tRNA-split.svg) ![](X70810.2_split_small.svg)
-
-![](stem-split.svg) ![](X70810.2_stem_split_small.svg)
-
----
-### .center[Problems]
-* **Locality** problem: *(extend)*
-    - Desired base-pair probabilities easily distorted 
-    - Specially for the closing stems of multi-loops
-.right[![](X70810.2_extend_small.svg)]
-
-* **Anti-locality** problem: *(split)*
-    - No matter how long a sequence is ..
-    
-    - No matter what is inside ..
-    
-    - Few distant compatible base-pairs make an strong prediction!
-.right[![](X70810.2_stem_split_small.svg)]
-
----
-### .center[What is missing?]
-Turner?
-* Turner energy model should not be that much mad
-
-McCaskill?
-* McCaskill algorithm has no heuristics or simplification..
-
----
 ### .center[Probability of an structure in the ensemble]
 .center[![](prob-vis.svg)]
 - BW:
@@ -286,17 +215,71 @@ layout: false
 
 ![](X70810.2.svg)
 ]
-
-
  -->
 
+---
+### .center[Target example]
+- A classic tRNA!
+
+![](X70810.2_centroid.svg)
+![](X70810.2_heatmap.svg)
 
 ---
-### .center[What we have been missing?]
-#### The concept of noise and context in nowadays genomic biology
-#### The fact that McCaskill's mindset was chemistry, not genome crawling
-![](sample_stem_dp.svg)
+### .center[Test 1: Extension]
+  
+  - Di-Nucleotide shuffled genomic context
+  - tRNA position:
+     - close to the center of the extension
+     - according to a normal distribution
+  - Target: a base-pair from *the acceptor stem*
+.center[![](X70810.2_extend.svg)]
+
+
 ---
+### .center[Probability of the selected base-pair (by global folding)]
+
+- Context-length: 
+    - Total length of the left and right extensions 
+- Each time the context is re-shuffled and re-sampled
+
+![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg)
+
+---
+### .center[Test 1: Split]
+.center[![](X70810.2_split.svg)]
+ <!-- ![](X70810.2_stem_split.svg) -->
+---
+### .center[Probability of the selected base-pair (by global folding)]
+- Each time the context is re-shuffled and re-sampled
+![](tRNA-split.svg) ![](X70810.2_split_small.svg)
+
+<!-- ![](stem-split.svg) ![](X70810.2_stem_split_small.svg) -->
+
+---
+### .center[Problems]
+* **Locality** problem: *(extend test)*
+    - Desired base-pair probabilities easily distorted 
+    - Specially for the closing stems of multi-loops
+.right[![](X70810.2_extend_small.svg)]
+
+* **Anti-locality** problem(?): *(split)*
+    - No matter how long a sequence is ..
+    
+    - No matter what is inside ..
+    
+    - Few distant compatible base-pairs make an strong prediction!
+.right[![](X70810.2_stem_split_small.svg)]
+
+---
+### .center[What is missing?]
+Turner?
+* Turner energy model should not be that much mad
+
+McCaskill?
+* McCaskill algorithm has no heuristics or simplification..
+
+
+
 ---
 ### .center[Can we solve it?]
 ### Calculating the base-pair probabilities with in inside algorithm
@@ -308,38 +291,30 @@ layout: false
 .center[<img align="bottom" src="despicable-me.jpg"  width="600" > ]
 
 ---
+### .center[Probability of the selected base-pair, by global folding]
+- Context-length: 
+    - Total length of the left and right extensions 
+- Each time the context is re-shuffled and re-sampled
+
+![](tRNA-Log-Turner-extend.svg) ![](X70810.2_extend_small.svg)
 
 ---
+### .center[Probability of the selected base-pair (by global folding)]
 
-###.center[Dot plot, 1]
-###Advantages:
-1. An excellent overview of **high** probable base-pairs
+- Context-length: 
+    - Total length of the left and right extensions 
+- Each time the context is re-shuffled and re-sampled
 
-2. Great help to detect the **second** probable structure. 
-   - Ribo-switch/bistable RNAs for example
----
-###.center[Dot plot, 2]
-###Advantages:
-1. An excellent overview of **high** probable base-pairs
-
-2. Great help to detect the **second** probable structure. 
-   - Ribo-switch/bistable RNAs for example
-
-3. .gray["Integration Test"] <img align="top" src="emoji.jpg"  width="22" >
-   - .gray[For the new comers in the field of RNA-bioinf ]
-
-  .center[![](X70810.2-annotated.svg)]
+![](tRNA-Quake-extend.svg) ![](X70810.2_extend_small.svg)
 
 ---
- ### Dot plot: The evolution
+### .center[Probability of the selected base-pair, by global folding]
+- Context-length: 
+    - Total length of the left and right extensions 
+- Each time the context is re-shuffled and re-sampled
 
-.small[.footnote[*McCaskill's picture taken years are not exact :)]]
+![](tRNA-Log-Quake-extend.svg) ![](X70810.2_extend_small.svg)
 
-.center[![](dotplot-evolution.svg)]
-
-<!-- *(CHURKIN et al., 2013) proposes an alternative for bistable RNAs -->
-
-<!-- *RNAstruct provides a confusing colored dot-plot -->
 
 ---
 layout: false
