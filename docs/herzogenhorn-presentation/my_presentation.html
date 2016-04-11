@@ -218,6 +218,10 @@ layout: false
  -->
 
 ---
+  
+* # Part 1: The problem
+
+---
 ### .center[Target example]
 - A classic tRNA!
 
@@ -245,7 +249,7 @@ layout: false
 ![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg)
 
 ---
-### .center[Test 1: Split]
+### .center[Test 2: Split]
 .center[![](X70810.2_split.svg)]
  <!-- ![](X70810.2_stem_split.svg) -->
 ---
@@ -271,6 +275,15 @@ layout: false
 .right[![](X70810.2_stem_split_small.svg)]
 
 ---
+.center[Split example]
+![](sample_trna2_nonsymmetric_dp_turner.ps.svg)
+
+---
+.center[Split example]
+![](sample_trna2_nonsymmetric_dp_turner.ps_inverse.svg)
+
+---
+### .center[(Slide from my talk last month)]
 ### .center[What is missing?]
 Turner?
 * Turner energy model should not be that much mad
@@ -278,43 +291,213 @@ Turner?
 McCaskill?
 * McCaskill algorithm has no heuristics or simplification..
 
+---
+   
+  
+* #### Part 1: The problem
+* # Part 2:  mmfold
+
+---
+### .center[ Base pairing probability computation ]
+
+### Irreversibility hypothesis:
+
+  1. Markov chain of base-pair probabilities is not reversible
+  
+  2. Computing the Markov chain with McCaskill's *outside* algorithm causes the locality problem (to some extend)
+
+![](outside.svg)  ![](inside.svg)
+
+---
+layout: false
+### .center[mmfold inside algorithm]
+
+- Calculating the base-pair probabilities with an inside algorithm
+
+    1. Base case: P_Hairpin(a) 
+    2. Inner Loop: P(a| a is closing b )
+    3. Multiloop: P(a| a is closing multiloop b1, b2, ... )
+
+
+ ![](basecase.svg)
+ ![](innerloop.svg)
+ ![](multiloop.svg)
+
+---
+### .center[mmfold implementation]
+- Implemented in C with fun and pain! :D
+- Directly inside cloned Vienna RNA package
+
+```cpp
+PUBLIC void mm_pf_create_bppm( vrna_fold_compound_t *vc, char *structure){
+    ...
+    probs[ij] = mc_probs[ij]/
+                qb[ij] *  
+                exp_E_Hairpin(j-i-1, type, S1[i+1], S1[j-1], 
+                    sequence+i-1 ,pf_params) * scale[j-i+1]; 
+                    // TODO: Verify rescaling is correct!
+    ...
+    FLT_OR_DBL 
+    new_score = probs[ij] * (mc_probs[kl]/mc_probs[ij])
+                * (qb[ij]/qb[kl]) * (scale[u1 + u2 + 2]
+                * exp_E_IntLoop(u1, u2, type, type_2_r, S1[k+1], S1[l-1], 
+                *               S1[i-1], S1[j+1],  pf_params));
+                
+    ...
+
+    tmp = qq1;  qq1 =qq;  qq =tmp;
+    tmp = qqm1; qqm1=qqm; qqm=tmp;
+
+}
+```
+- In my spare time (4 weekends + couple of afternoons)
+- With a bunch of TODOS!
+
+---
+.center[mmfold alpha: output]
+```bash
+$ mmfold -p -P src/misc/rna_turner2004.par < trna2.fa 
+```
+![](sample_trna2_nonsymmetric_mm_dp.filt.ps.svg)
+---
+.center[mmfold alpha: output]
+
+```bash
+$ mmfold -p -P src/misc/rna_turner2004.par < trna2.fa 
+```
+
+![](sample_trna2_nonsymmetric_mm_dp.filt.ps_inverse.svg)
+
+---
+### .center[mmfold outcome]
+- My irreversibility hypothesis failed 
+<img align="top" src="thumbsdown.png"  width="30" > 
+
+- Rolf and Martin were right ;-)
+
+- But I also deep learned "Nearest Neighbor Energy Model"!
+
+
+```cpp
+FLT_OR_DBL branch_energy = E_MLstem(type, S1[h-1], S1[k+1], vc->params);
+
+FLT_OR_DBL branch_pf = exp_E_MLstem(rtype[type], S1[h-1], S1[k+1], pf_params);
+
+FLT_OR_DBL qb_energy = (-log(qb[kh]) -(h-k+1)*log(pf_params->pf_scale))
+                        *pf_params->kT/10.;
+```
+
+---
+--- 
+* #### Part 1: The problem
+* #### Part 2:  mmfold
+* # Part 3: Quake
 
 
 ---
-### .center[Can we solve it?]
-### Calculating the base-pair probabilities with in inside algorithm
-
-1. Base case: P_Hairpin(i,j)
-2. Inner Loop: P_kl(ij| kl is closing ij )
-3. Multiloop: coming soon..
-
-.center[<img align="bottom" src="despicable-me.jpg"  width="600" > ]
+.center[Quake example]
+![](sample_trna2_nonsymmetric_dp_quake.ps.svg)
 
 ---
-### .center[Probability of the selected base-pair, by global folding]
-- Context-length: 
-    - Total length of the left and right extensions 
-- Each time the context is re-shuffled and re-sampled
+.center[Quake example]
+![](sample_trna2_nonsymmetric_dp_quake.ps_inverse.svg)
 
+---
+#### .center[Extend: Turner vs Quake]
+![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg)
+![](tRNA-Quake-extend.svg) 
+
+---
+#### .center[Extend: Turner vs Quake (Log scale)]
 ![](tRNA-Log-Turner-extend.svg) ![](X70810.2_extend_small.svg)
+![](tRNA-Log-Quake-extend.svg)
 
 ---
-### .center[Probability of the selected base-pair (by global folding)]
+### .center[What is Quake?]
+- RNAfold uses the famous Turner's energy parameters for free energy computations
 
-- Context-length: 
-    - Total length of the left and right extensions 
-- Each time the context is re-shuffled and re-sampled
+- It is a new parameter set
 
-![](tRNA-Quake-extend.svg) ![](X70810.2_extend_small.svg)
+```bash
+RNAfold -p -P src/misc/quake.par
+```
 
 ---
-### .center[Probability of the selected base-pair, by global folding]
-- Context-length: 
-    - Total length of the left and right extensions 
-- Each time the context is re-shuffled and re-sampled
+### .center[What is Quake?]
+- RNAfold uses the famous Turner's energy parameters for free energy computations
 
-![](tRNA-Log-Quake-extend.svg) ![](X70810.2_extend_small.svg)
+- It is a new parameter set
 
+```bash
+RNAfold -p -P src/misc/quake.par
+```
+
+- Not really!
+ 
+- It is Turner's params except one param:
+  
+  - Unpaired nucleotide penalty of a multiloop region 
+
+---
+### .center[Turner vs Quake]
+- Turner:
+
+<img align="top" src="turner-params.png"  width="750" > 
+
+- Quake:
+```bash
+/* F = cu*n_unpaired + cc + ci*loop_degree (+TermAU) */
+/*   cu      cu_dH   cc    cc_dH      ci     ci_dH  */
+         50      0       930    3000     -190    -220 
+```
+---
+--- 
+* #### Part 1: The problem
+* #### Part 2:  mmfold
+* #### Part 3: Quake
+* ## Part 4: Quake Evaluation
+
+---
+#### .center[Localfold CisReg  dataset, Context 0]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cont0-bp-accuracy-constraint-all.svg.svg)
+---
+#### .center[Localfold CisReg  dataset, Context 200]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cont200-bp-accuracy-constraint-all.svg.svg)
+
+<!-- ---
+#### .center[Localfold CisReg  dataset]
+.left[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00023.svg.svg)
+ -->
+---
+#### .center[Localfold CisReg  dataset]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00036.svg.svg)
+---
+#### .center[Localfold CisReg  dataset]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00041.svg.svg)
+---
+#### .center[Localfold CisReg  dataset]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00048.svg.svg)
+---
+#### .center[Localfold CisReg  dataset]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00386.svg.svg)
+---
+#### .center[Localfold CisReg  dataset]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00515.svg.svg)
+
+<!-- ---
+#### .center[Localfold CisReg  dataset]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF01418.svg.svg)
+ -->
+---
 
 ---
 layout: false
