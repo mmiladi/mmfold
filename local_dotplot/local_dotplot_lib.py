@@ -216,7 +216,7 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
 #     plugins.connect(fig, plugins.MousePosition(fontsize=14))
 
-    heatmap = ax.matshow(mat, cmap=my_hot_cmap,vmin=threshold) #, interpolation='nearest')
+    heatmap = ax.matshow(mat, cmap=my_hot_cmap, vmin=threshold, vmax=1) #, interpolation='nearest')
 #     y, x = np.mgrid[:mat.shape[0], :mat.shape[1]]
 #     x,y = x.ravel(),y.ravel()
 
@@ -259,7 +259,26 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
     ax.set_ylim((seq_len-0.5, -.5))
 
 
-def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', inverse=False, interactive=False, gene_loc=None):
+def plot_heat_maps_fig(fig, subplot_num, mfe_probs, bp_probs_whole, what='all', inverse=False,
+                   interactive=False, gene_loc=None, title_suffix=''):
+
+    if what == 'basepairs' or what == 'all':
+        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs:'+title_suffix
+                   , inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+
+    if what == 'mfe-probs' or what == 'all':
+        my_heatmap(mfe_probs, fig, fig.add_subplot(subplot_num + 3), 'struct-probs:'+title_suffix,
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+    if what == 'all':
+        my_heatmap(bp_probs_whole*mfe_probs, fig, fig.add_subplot(subplot_num + 2), 'bp*struct:'+title_suffix,
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+        my_heatmap(np.sqrt(bp_probs_whole*mfe_probs), fig, fig.add_subplot(subplot_num + 4), 'sqrt(bp*struct):'+title_suffix,
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+
+    #     fig.savefig(filename+'.png', dpi=800)
+
+def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', inverse=False, 
+                   interactive=False, gene_loc=None, title_suffix=''):
     if what == 'all':
         fig = plt.figure(figsize=(20, 5))
         subplot_num = 140
@@ -268,23 +287,23 @@ def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', in
         subplot_num = 110
 
     if what == 'basepairs' or what == 'all':
-        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs'
+        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs:'+title_suffix
                    , inverse=inverse, interactive=interactive, gene_loc=gene_loc)
 
     if what == 'mfe-probs' or what == 'all':
-        my_heatmap(mfe_probs, fig, fig.add_subplot(subplot_num + 3), 'struct-probs',
+        my_heatmap(mfe_probs, fig, fig.add_subplot(subplot_num + 3), 'struct-probs:'+title_suffix,
                    inverse=inverse, interactive=interactive, gene_loc=gene_loc)
     if what == 'all':
-        my_heatmap(bp_probs_whole*mfe_probs, fig, fig.add_subplot(subplot_num + 2), 'bp*struct',
+        my_heatmap(bp_probs_whole*mfe_probs, fig, fig.add_subplot(subplot_num + 2), 'bp*struct:'+title_suffix,
                    inverse=inverse, interactive=interactive, gene_loc=gene_loc)
-        my_heatmap(np.sqrt(bp_probs_whole*mfe_probs), fig, fig.add_subplot(subplot_num + 4), 'sqrt(bp*struct)',
+        my_heatmap(np.sqrt(bp_probs_whole*mfe_probs), fig, fig.add_subplot(subplot_num + 4), 'sqrt(bp*struct):'+title_suffix,
                    inverse=inverse, interactive=interactive, gene_loc=gene_loc)
 
     #     fig.savefig(filename+'.png', dpi=800)
     if inverse:
         filename += '_inverse'
-    fig.savefig(filename+'.pdf', dpi=100)
-    fig.savefig(filename+'.svg', dpi=100, format="svg")
+    fig.savefig(filename+'.pdf', dpi=300)
+    fig.savefig(filename+'.svg', dpi=300, format="svg")
 #     return fig
 
 
@@ -367,7 +386,7 @@ def parse_dp_ps(ps_file):
 # Plot ps dotplot files with option to support large files with sparse storage
 
 
-def parse_dp_ps_sparse(ps_file, sparse=False):
+def parse_dp_ps_sparse(ps_file, sparse=False, bp_range=None, skip_pos=None):
     '''Extracts base pair probabliies from vienna ps file
     returns: Numpy 2d array of form arr[i,j]=p(i,j) '''
 
@@ -407,17 +426,30 @@ def parse_dp_ps_sparse(ps_file, sparse=False):
                 um = ureg.match(line)
                 if um:
                     i, j, sqrp = um.groups()
+                    # keys are pair of indexes as smaller:larger
+
+                    i, j = int(i), int(j)
+                    if skip_pos is not None and i >= skip_pos:
+                        i += 1
+                    if skip_pos is not None and j >= skip_pos:
+                        j += 1
+
+                    key = ":".join([str(i), str(j)])
+
+                    if bp_range is not None:  # Skip base pair if one side not in range
+                        assert len(bp_range) == 2
+                        assert bp_range[0] < bp_range[1]
+                        if (i < bp_range[0]-1) or (j > bp_range[1]+1):  # -+1 because not sure for zero based or one based
+                            # print i, j, bp_range[0], bp_range[1]
+                            continue
 
                     #                     print i, j, sqrp
 
-                    # keys are pair of indexes as smaller:larger
-                    key = ":".join([i, j])
                     if "ubox" in line:  # upper triangle of probs
                         assert (key not in bp_prob_dict)
                         bpprob = float(sqrp)*float(sqrp)
                         bp_prob_dict[key] = bpprob
 
-                        i, j = int(i), int(j)
                         bp_prob_mat[i-1, j-1] = bpprob
                     else:  # lower part mfe struct
                         i, j = int(i), int(j)
@@ -435,14 +467,77 @@ def bpp_dict_to_np_array(d, seq):
     return np_arr
 
 
-def plot_dp_ps(dp, sparse=False, gene_loc=None, inverse=False):
+def plot_dp_ps(dp, sparse=False, gene_loc=None, inverse=False, cut_gene=False, title='', infig=None
+               , subplot_num=None):
     from os.path import basename, dirname
 #     from pankoff_lib import parse_dp_ps
-    np_arr, mfe_dict = parse_dp_ps_sparse(dp, sparse)
-    print np_arr
-    return plot_heat_maps(None, np_arr, dirname(dp)+"/"+basename(dp), 'basepairs', gene_loc=gene_loc,
-                          inverse=inverse, interactive=False)
+    
+    if cut_gene is True:
+        parser_range = gene_loc
+    else:
+        parser_range = None
 
+    np_arr, mfe_dict = parse_dp_ps_sparse(dp, sparse, parser_range)
+    if infig is None:
+        fig = plt.figure(figsize=(7, 7))
+        subplot_num = 110
+    else:
+        fig = infig
+    if cut_gene is True:
+        assert gene_loc is not None
+        assert len(gene_loc) == 2
+        np_arr_cut = np_arr[gene_loc[0]-2:gene_loc[1]+1, gene_loc[0]-2:gene_loc[1]+1]
+        plot_heat_maps_fig(fig, subplot_num, None, np_arr_cut,  what='basepairs', gene_loc=None,
+                           inverse=inverse, interactive=False, title_suffix=title)
+
+    else:
+        plot_heat_maps_fig(fig, subplot_num, None, np_arr, what='basepairs', gene_loc=gene_loc,
+                           inverse=inverse, interactive=False, title_suffix=title)
+
+    if infig is None:
+        filename = dirname(dp)+"/"+basename(dp)
+        if inverse:
+            filename += '_inverse'
+#         fig.savefig(filename+'.pdf', dpi=300)
+        fig.savefig(filename+'.svg', dpi=300, format="svg")
+
+
+def plot_differential_dp_ps(dp1, dp2, skips_pos= [None, None], sparse=False, gene_loc=None, inverse=False, cut_gene=False, title='', infig=None
+               , subplot_num=None):
+    from os.path import basename, dirname
+    assert len(skips_pos) == 2
+    if cut_gene is True:
+        parser_range = gene_loc
+    else:
+        parser_range = None
+
+#     from pankoff_lib import parse_dp_ps
+    np_arr1, mfe_dict1 = parse_dp_ps_sparse(dp1, sparse, parser_range, skips_pos[0])
+    np_arr2, mfe_dict2 = parse_dp_ps_sparse(dp2, sparse, parser_range, skips_pos[1])
+    
+    np_arr = np_arr1 - np_arr2
+    if infig is None:
+        fig = plt.figure(figsize=(7, 7))
+        subplot_num = 110
+    else:
+        fig = infig
+    if cut_gene is True:
+        assert gene_loc is not None
+        assert len(gene_loc) == 2
+        np_arr_cut = np_arr[gene_loc[0]-2:gene_loc[1]+1, gene_loc[0]-2:gene_loc[1]+1]
+        plot_heat_maps_fig(fig, subplot_num, None, np_arr_cut,  what='basepairs', gene_loc=None,
+                           inverse=inverse, interactive=False, title_suffix=title)
+
+    else:
+        plot_heat_maps_fig(fig, subplot_num, None, np_arr, what='basepairs', gene_loc=gene_loc,
+                           inverse=inverse, interactive=False, title_suffix=title)
+
+    if infig is None:
+        filename = dirname(dp)+"/"+basename(dp)
+        if inverse:
+            filename += '_inverse'
+#         fig.savefig(filename+'.pdf', dpi=300)
+        fig.savefig(filename+'.svg', dpi=300, format="svg")
 
 ### Code snippet for Vienna python pavckage
 # RNA.cvar.fold_constrained = 0

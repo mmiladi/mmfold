@@ -161,7 +161,7 @@ layout: false
 
 ---
 
-### .center[Probability of an structure in the ensemble]
+### .center[Probability of an RNA structure in the ensemble]
 .center[![](prob-vis.svg)]
 - BW:
      - Boltzmann Weight
@@ -458,11 +458,14 @@ RNAfold -p -P src/misc/quake.par
 * ## Part 4: Quake Evaluation
 
 ---
+
+
+---
 #### .center[Localfold CisReg  dataset, Context 0]
 .center[Basepair accuracy (=expected sensitivity)]
 ![](boxplots-cont0-bp-accuracy-constraint-all.svg.svg)
 ---
-#### .center[Localfold CisReg  dataset, Context 200]
+#### .center[CisReg  dataset, Asymmetric Context 200]
 .center[Basepair accuracy (=expected sensitivity)]
 ![](boxplots-cont200-bp-accuracy-constraint-all.svg.svg)
 
@@ -472,23 +475,23 @@ RNAfold -p -P src/misc/quake.par
 ![](boxplots-cisreg-bp-accuracy-constraint-RF00023.svg.svg)
  -->
 ---
-#### .center[Localfold CisReg  dataset]
+#### .center[ CisReg  dataset, Asymmetric Context 200]
 .center[Basepair accuracy (=expected sensitivity)]
 ![](boxplots-cisreg-bp-accuracy-constraint-RF00036.svg.svg)
 ---
-#### .center[Localfold CisReg  dataset]
+#### .center[ CisReg  dataset, Asymmetric Context 200]
 .center[Basepair accuracy (=expected sensitivity)]
 ![](boxplots-cisreg-bp-accuracy-constraint-RF00041.svg.svg)
 ---
-#### .center[Localfold CisReg  dataset]
+#### .center[ CisReg  dataset, Asymmetric Context 200]
 .center[Basepair accuracy (=expected sensitivity)]
 ![](boxplots-cisreg-bp-accuracy-constraint-RF00048.svg.svg)
 ---
-#### .center[Localfold CisReg  dataset]
+#### .center[ CisReg  dataset, Asymmetric Context 200]
 .center[Basepair accuracy (=expected sensitivity)]
 ![](boxplots-cisreg-bp-accuracy-constraint-RF00386.svg.svg)
 ---
-#### .center[Localfold CisReg  dataset]
+#### .center[ CisReg  dataset, Asymmetric Context 200]
 .center[Basepair accuracy (=expected sensitivity)]
 ![](boxplots-cisreg-bp-accuracy-constraint-RF00515.svg.svg)
 
@@ -500,15 +503,36 @@ RNAfold -p -P src/misc/quake.par
 ---
 
 ---
+### .center[(Slide from my talk last month)]
+### .center[What is missing?]
+Turner?
+* Turner energy model should not be that much mad
+
+McCaskill?
+* McCaskill algorithm has no heuristics or simplification..
+
+**Update:**
+* Well the Turner energy model is not mad but highly overfitted to positive set of RNA strands, with nice boundaries
+
+* For multiloop parameters (at least)
+
+* More precisely the dynamic programming variation of Turner model is over-fitted
+---
 layout: false
 
 .center[
 
-### .gray[RNA Dotplots, ]
-### .gray[McCaskill ]
-## and the curse of Locality
+#Thank you
+
 ]
 
+
+
+
+.gray[####Acknowledgment:
+* Rolf
+* Martin
+]
 
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
