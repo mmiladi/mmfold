@@ -7,7 +7,7 @@ import re
 
 kT = (37+273.15)*1.98717/1000.0  # /* kT in kcal/mol */
 
-VIENNA_BIN_PATH = '/home/milad/1software/bin/'
+VIENNA_BIN_PATH = '' #'/home/milad/1software/bin/'
 RNAFOLD = 'RNAfold -p --noPS  '
 RNAPLFOLD = 'RNAplfold '
 QUAKE_PARAM_FILE = '/home/milad/1workspace/mmfold/src/misc/rna_turner2004_ML_up_penalty.par '
