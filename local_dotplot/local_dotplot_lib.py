@@ -7,11 +7,11 @@ import re
 
 kT = (37+273.15)*1.98717/1000.0  # /* kT in kcal/mol */
 
-VIENNA_BIN_PATH = '/home/milad/software/bin/'
+VIENNA_BIN_PATH = '/home/milad/1software/bin/'
 RNAFOLD = 'RNAfold -p --noPS  '
 RNAPLFOLD = 'RNAplfold '
-QUAKE_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_turner2004_ML_up_penalty.par '
-ANDERO_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_andronescu2007.par '
+QUAKE_PARAM_FILE = '/home/milad/1workspace/mmfold/src/misc/rna_turner2004_ML_up_penalty.par '
+ANDERO_PARAM_FILE = '/home/milad/1workspace/mmfold/src/misc/rna_andronescu2007.par '
 
 
 def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, which_params='turner',  dangles=2,
