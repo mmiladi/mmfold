@@ -12,13 +12,13 @@ import pandas as pd
 from subprocess import *
 
 # settings !!!! IMPORTANT UPDATE IT to CisDataset folder !!!!!!
-CIS_GENOME_PATH = '/home/milad/DataBase/CisReg/Cis_include_genome2/'
-CIS_MRNA_PATH = '/home/milad/DataBase/CisReg/Cis_include_mRNA/'
+CIS_GENOME_PATH = '/home/milad/1DataBase/CisReg/Cis_include_genome2/'
+CIS_MRNA_PATH = '/home/milad/1DataBase/CisReg/Cis_include_mRNA/'
 
 
-VIENNA_BIN_PATH = '/home/milad/software/bin/'
-QUAKE_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_turner2004_ML_up_penalty.par '
-ANDERO_PARAM_FILE = '/home/milad/workspace/mmfold/src/misc/rna_andronescu2007.par '
+VIENNA_BIN_PATH = ''#'/home/milad/1software/bin/'
+QUAKE_PARAM_FILE = '/home/milad/1workspace/mmfold/src/misc/rna_turner2004_ML_up_penalty.par '
+ANDERO_PARAM_FILE = '/home/milad/1workspace/mmfold/src/misc/rna_andronescu2007.par '
 RNAFOLD = 'RNAfold -p --noPS '
 RNAPLFOLD = 'RNAplfold '
 
