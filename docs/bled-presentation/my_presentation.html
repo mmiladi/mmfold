@@ -7,7 +7,16 @@
        @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
       @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
-
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: center;
+            padding: 10px;
+            /*border: 1px solid gray;*/
+            border-bottom: 1px solid #ddd;
+        }
+   
       body {
         font-family: 'Droid Serif';
       }
@@ -142,16 +151,20 @@
 name: inverse
 layout: true
 class: center, middle, inverse
---- 
+
+---
+name: footer
+layout: true
+<div class="footer">your footer text</div>
+
 
 ---
 layout: false
 
 .center[
-
+## Locality Glitch
+### in 
 ## Established RNA Energy Models 
-###  and 
-## The Curse of Locality
 # 
 # 
 # 
@@ -172,6 +185,8 @@ layout: false
 
 ![](X70810.2_centroid.svg)
 ![](X70810.2_heatmap.svg)
+
+.footer{position: absolute; bottom: 12px; left: 20px}
 
 ---
 ### .center[Test 1: Extension]
@@ -235,19 +250,27 @@ layout: false
 
 ---
 ### .center[What is Quake?]
-- RNAfold uses the famous Turner's energy parameters for free energy computations
+- Turner's Lab energy parameters for free energy computations
 
 - It is a new parameter set
-
-```bash
-RNAfold -p -P src/misc/quake.par
-```
 
 - Not really!
  
 - It is Turner's params except one param:
   
   - Unpaired nucleotide penalty of a multiloop region 
+
+---
+### .center[Models multiloop parameters]
+
+
+| Model | cu | cc | ci |
+| ------ | ------- | -----  | ------------ | 
+| Turner-1999 | 0 | 340 | 40 | 
+| Turner-2004 | 0 | 930 | -90 |
+| Andronescu-2007 |  4 | 440 | 3 |    
+| Quake <br>(Patched Turner) | 50 | 930 | -190 |  
+---
 
 ---
 ### .center[Turner vs Quake]
@@ -299,20 +322,7 @@ RNAfold -p -P src/misc/quake.par
 * For multiloop parameters (at least)
 
 * More precisely the dynamic programming variation of Turner model is over-fitted
----
-layout: false
 
-.center[
-
-.gray[####Acknowledgment:
-* Rolf
-* Martin
-]
-#Thank you
-
-]
-
----
 
 ---
 layout: false
@@ -367,7 +377,11 @@ PUBLIC void mm_pf_create_bppm( vrna_fold_compound_t *vc, char *structure){
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
     </script>
     <script>
-      var slideshow = remark.create();
+      var slideshow = remark.create({
+        
+    slideNumberFormat: function (current, total) {
+    return 'University of Freiburg (' + current + ')'//'Slide ' + current +    &emsp + 'of ' + total;
+  },});
     </script>
   </body>
 </html>
