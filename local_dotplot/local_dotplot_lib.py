@@ -216,7 +216,7 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
 #     plugins.connect(fig, plugins.MousePosition(fontsize=14))
 
-    heatmap = ax.matshow(mat, cmap=my_hot_cmap, vmin=threshold, vmax=1) #, interpolation='nearest')
+    heatmap = ax.matshow(mat, cmap=my_hot_cmap, vmin=threshold, vmax=1, ) #, interpolation='nearest')
 #     y, x = np.mgrid[:mat.shape[0], :mat.shape[1]]
 #     x,y = x.ravel(),y.ravel()
 
@@ -227,7 +227,8 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
     ax.set_yticklabels([])
     barticks = [threshold] + [r/10.0 for r in range(1, 11)]
     barlabels = [str(threshold)] + [str(r/10.0) for r in range(1, 11)]
-    cbar = fig.colorbar(heatmap, extend='min', ticks=barticks)
+    cbar = fig.colorbar(heatmap, extend='min', ticks=barticks ,fraction=0.043, pad=0.04)
+
     cbar.ax.set_yticklabels(barlabels)
     if inverse:
         cbar.cmap.set_under('white')
@@ -263,7 +264,7 @@ def plot_heat_maps_fig(fig, subplot_num, mfe_probs, bp_probs_whole, what='all', 
                    interactive=False, gene_loc=None, title_suffix=''):
 
     if what == 'basepairs' or what == 'all':
-        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs:'+title_suffix
+        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs '+title_suffix
                    , inverse=inverse, interactive=interactive, gene_loc=gene_loc)
 
     if what == 'mfe-probs' or what == 'all':
@@ -287,7 +288,7 @@ def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', in
         subplot_num = 110
 
     if what == 'basepairs' or what == 'all':
-        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs:'+title_suffix
+        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs'+title_suffix
                    , inverse=inverse, interactive=interactive, gene_loc=gene_loc)
 
     if what == 'mfe-probs' or what == 'all':
