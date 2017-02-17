@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Locality Glitch in Established RNA Energy Models 
+ </title>
+    <meta charset="utf-8">
+    <style>
+       @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: center;
+            padding: 10px;
+            /*border: 1px solid gray;*/
+            border-bottom: 1px solid #ddd;
+        }
+   
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+	.remark-slide-content:after {
+	    content: "";
+	    position: absolute;
+	    bottom: 1%;
+	    right: 83%;
+	    height: 60px;
+	    width: 120px;
+	    opacity: 0.9;
+
+	    background-repeat: no-repeat;
+	    background-size: contain;
+	    background-image: url('bioinfo-logo-medium-transp.png');
+	}      
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .gray { color: #777; }
+      .large { font-size: 2em; }
+      .small { font-size: 0.5em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+
+           /* Two-column layout */
+      .my-left-column {
+
+        width: 70%;
+        float: left;
+      }
+       
+      .my-right-column {
+        color: #888;
+        width: 15%;
+        float: right;
+        height: 92%;
+
+        padding-top: 1em;
+      }
+       .my-right-column h2:last-of-type, .my-right-column h3:last-child {
+          color: #001;
+        }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+name: inverse
+layout: true
+class: center, middle, inverse
+
+---
+name: footer
+layout: true
+<div class="footer">your footer text</div>
+
+
+---
+layout: false
+
+.center[
+## Locality Glitch
+### in 
+## Established RNA Energy Models 
+# 
+# 
+# 
+
+<br><br><br>
+
+#### Milad Miladi
+#### University of Freiburg
+<br>
+##### 32nd TBI Winterseminar in Bled, February 2017 
+]
+
+---
+### .center[Motivation]
+
+---
+
+### .center[Inspected RNA]
+
+- A *tRNA* with its typical cloverleaf secondary structure
+- Evaluate probability of two base-pairs from: 
+    - *Acceptor stem*
+    - *Anticodon stem*
+
+![](X70810.2_centroid.svg)
+![](X70810.2_heatmap.svg)
+
+.footer{position: absolute; bottom: 12px; left: 20px}
+
+---
+### .center[Extension experiment]
+  
+  - Di-Nucleotide shuffled genomic context of the tRNA
+  - tRNA positioned
+     - in the proximity of the midpoint 
+     - according to a normal distribution
+
+.center[![](X70810.2_extend.svg)]
+
+
+---
+.center[Split example]
+![](sample_trna2_nonsymmetric_dp_turner.ps_inverse.svg)
+
+---
+### .center[Probability of the selected base-pair (global folding)]
+
+<!--    ![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg) -->
+![](boxplot-tRNA-Turner-extend.svg) ![](X70810.2_extend.svg)
+
+<!--    ![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg) -->
+![](boxplot-tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg)
+
+---
+### .center[Test 2: Split]
+.center[![](X70810.2_split.svg)]
+ <!-- ![](X70810.2_stem_split.svg) -->
+---
+### .center[Probability of the selected base-pair (by global folding)]
+- Each time the context is re-shuffled and re-sampled
+![](tRNA-split.svg) ![](X70810.2_split_small.svg)
+
+<!-- ![](stem-split.svg) ![](X70810.2_stem_split_small.svg) -->
+
+---
+### .center[Challenges]
+* **Locality**: *(extend test)*
+    - Desired base-pair probabilities easily distorted 
+    - Specially for the closing stems of multi-loops
+.right[![](X70810.2_extend_small.svg)]
+
+* **Anti-locality**: *(split)*
+    - No matter how long a sequence is ..
+    - No matter what is inside ..
+    - Few distant compatible base-pairs make an strong prediction!
+.right[![](X70810.2_stem_split_small.svg)]
+
+
+
+---
+.center[Quake example]
+![](sample_trna2_nonsymmetric_dp_quake.ps_inverse.svg)
+
+---
+#### .center[Extend: Turner vs Quake]
+![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg)
+![](tRNA-Quake-extend.svg) 
+
+
+---
+### .center[What is Quake?]
+- Turner's Lab energy parameters for free energy computations
+
+- It is a new parameter set
+
+- Not really!
+ 
+- It is Turner's params except one param:
+  
+  - Unpaired nucleotide penalty of a multiloop region 
+
+---
+### .center[Models multiloop parameters]
+
+
+| Model | cu | cc | ci |
+| :------ | ------- | -----  | ------------ | 
+| Turner-1999 | <b>0</b>  | 340 | 40 | 
+| Turner-2004 | <b>0</b>  | 930 | -90 |
+| Andronescu-2007 |  <b>4</b>  | 440 | 3 |    
+| Quake <br>(Patched Turner) | <b>50</b>  | 930 | -190 |  
+
+
+---
+### .center[Turner vs Quake]
+- Turner:
+
+<img align="top" src="turner-params.png"  width="750" > 
+
+- Quake:
+```bash
+/* F = cu*n_unpaired + cc + ci*loop_degree (+TermAU) */
+/*   cu      cu_dH   cc    cc_dH      ci     ci_dH  */
+         50      0       930    3000     -190    -220 
+```
+---
+
+
+
+#### .center[CisReg  dataset, Asymmetric Context 200]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cont200-bp-accuracy-constraint-all.svg.svg)
+
+<!-- ---
+#### .center[Localfold CisReg  dataset]
+.left[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00023.svg.svg)
+ -->
+---
+#### .center[ CisReg  dataset, Asymmetric Context 200]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00041.svg.svg)
+---
+#### .center[ CisReg  dataset, Asymmetric Context 200]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00386.svg.svg)
+---
+#### .center[ CisReg  dataset, Asymmetric Context 200]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF00515.svg.svg)
+
+---
+#### .center[Localfold CisReg  dataset]
+.center[Basepair accuracy (=expected sensitivity)]
+![](boxplots-cisreg-bp-accuracy-constraint-RF01418.svg.svg)
+
+---
+### .center[What is missing?]
+* Well the established energy models highly overfitted to positive set of RNA strands, with nice boundaries
+
+* For multiloop parameters (at least)
+
+* More precisely the dynamic programming variation of Turner model is over-fitted
+
+
+---
+layout: false
+### .center[mmfold inside algorithm]
+
+- Calculating the base-pair probabilities with an inside algorithm
+
+    1. Base case: P_Hairpin(a) 
+    2. Inner Loop: P(a| a is closing b )
+    3. Multiloop: P(a| a is closing multiloop b1, b2, ... )
+
+
+ ![](basecase.svg)
+ ![](innerloop.svg)
+ ![](multiloop.svg)
+
+---
+### .center[mmfold implementation]
+- Implemented in C with fun and pain! :D
+- Directly inside cloned Vienna RNA package
+
+```cpp
+PUBLIC void mm_pf_create_bppm( vrna_fold_compound_t *vc, char *structure){
+    ...
+    probs[ij] = mc_probs[ij]/
+                qb[ij] *  
+                exp_E_Hairpin(j-i-1, type, S1[i+1], S1[j-1], 
+                    sequence+i-1 ,pf_params) * scale[j-i+1]; 
+                    // TODO: Verify rescaling is correct!
+    ...
+    FLT_OR_DBL 
+    new_score = probs[ij] * (mc_probs[kl]/mc_probs[ij])
+                * (qb[ij]/qb[kl]) * (scale[u1 + u2 + 2]
+                * exp_E_IntLoop(u1, u2, type, type_2_r, S1[k+1], S1[l-1], 
+                *               S1[i-1], S1[j+1],  pf_params));
+                
+    ...
+
+    tmp = qq1;  qq1 =qq;  qq =tmp;
+    tmp = qqm1; qqm1=qqm; qqm=tmp;
+
+}
+```
+
+
+
+
+
+
+
+    </textarea>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        
+    slideNumberFormat: function (current, total) {
+    return  current //'Slide ' + current +    &emsp + 'of ' + total;
+  },});
+    </script>
+  </body>
+</html>
