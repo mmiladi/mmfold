@@ -192,8 +192,15 @@ layout: false
 ]
 
 ---
-### .center[Motivation]
+### .center[Motivation: Improving local alignment of RNAs ]
 
+- Genomic context 
+
+![](local-align.svg)
+
+- Shuffled genomic context
+
+![](local-align-shuffled.svg)
 ---
 
 ### .center[Inspected RNA]
@@ -209,9 +216,9 @@ layout: false
 .footer{position: absolute; bottom: 12px; left: 20px}
 
 ---
-### .center[Extension experiment]
+### .center[Experiment: Extension ]
   
-  - Di-Nucleotide shuffled genomic context of the tRNA
+  - Shuffled genomic context of the tRNA
   - tRNA positioned
      - in the proximity of the midpoint 
      - according to a normal distribution
@@ -228,45 +235,51 @@ layout: false
 ### .center[Probability of the selected base-pair (global folding)]
 
 <!--    ![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg) -->
-![](boxplot-tRNA-Turner-extend.svg) ![](X70810.2_extend.svg)
+![](boxplot-tRNA-Turner-extend.svg)   ![](X70810.2_extend_small.svg)
 
 <!--    ![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg) -->
-![](boxplot-tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg)
+![](boxplot-tRNA-codon-Turner-extend.svg)    ![](X70810.2_extend_small_codon.svg)
 
 ---
-### .center[Test 2: Split]
+### .center[Experiment: Insertion]
+- Shuffled genomic context of the tRNA is inserted into the *Anticodon* loop
+
 .center[![](X70810.2_split.svg)]
  <!-- ![](X70810.2_stem_split.svg) -->
 ---
-### .center[Probability of the selected base-pair (by global folding)]
-- Each time the context is re-shuffled and re-sampled
-![](tRNA-split.svg) ![](X70810.2_split_small.svg)
 
-<!-- ![](stem-split.svg) ![](X70810.2_stem_split_small.svg) -->
+
+### .center[Probability of the selected base-pair (global folding)]
+
+![](boxplot-tRNA-Turner-split.svg)   ![](X70810.2_split_small.svg)
+![](boxplot-tRNA-codon-Turner-split.svg)    ![](X70810.2_split_small_codon.svg)
 
 ---
-### .center[Challenges]
+### .center[Observations]
 * **Locality**: *(extend test)*
-    - Desired base-pair probabilities easily distorted 
+    - A relatively short context can distort the acceptor signal
     - Specially for the closing stems of multi-loops
-.right[![](X70810.2_extend_small.svg)]
 
-* **Anti-locality**: *(split)*
-    - No matter how long a sequence is ..
-    - No matter what is inside ..
-    - Few distant compatible base-pairs make an strong prediction!
+![](X70810.2_extend_small.svg)     
+
+* **Anti-locality**: *(insert test)*
+    - Independent of a sequence and content
+    - Few distant compatible base-pairs make an strong prediction
 .right[![](X70810.2_stem_split_small.svg)]
 
 
 
----
+<!-- ---
 .center[Quake example]
 ![](sample_trna2_nonsymmetric_dp_quake.ps_inverse.svg)
+ -->
 
 ---
-#### .center[Extend: Turner vs Quake]
-![](tRNA-Turner-extend.svg) ![](X70810.2_extend_small.svg)
-![](tRNA-Quake-extend.svg) 
+### .center[Probability of the selected base-pair (global folding, Quake)]
+
+![](boxplot-tRNA-Quake-extend.svg)   ![](X70810.2_extend_small.svg)
+
+![](boxplot-tRNA-codon-Quake-extend.svg)    ![](X70810.2_extend_small_codon.svg)
 
 
 ---
@@ -293,18 +306,6 @@ layout: false
 | Quake <br>(Patched Turner) | <b>50</b>  | 930 | -190 |  
 
 
----
-### .center[Turner vs Quake]
-- Turner:
-
-<img align="top" src="turner-params.png"  width="750" > 
-
-- Quake:
-```bash
-/* F = cu*n_unpaired + cc + ci*loop_degree (+TermAU) */
-/*   cu      cu_dH   cc    cc_dH      ci     ci_dH  */
-         50      0       930    3000     -190    -220 
-```
 ---
 
 
@@ -401,7 +402,7 @@ PUBLIC void mm_pf_create_bppm( vrna_fold_compound_t *vc, char *structure){
       var slideshow = remark.create({
         
     slideNumberFormat: function (current, total) {
-    return  current //'Slide ' + current +    &emsp + 'of ' + total;
+    return  current - 1 //'Slide ' + current +    &emsp + 'of ' + total;
   },});
     </script>
   </body>

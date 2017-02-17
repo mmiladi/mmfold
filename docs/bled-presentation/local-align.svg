@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="114.12435mm"
+   height="29.501205mm"
+   viewBox="0 0 114.12435 29.501205"
+   version="1.1"
+   id="svg1425"
+   inkscape:version="0.92.0 unknown"
+   sodipodi:docname="local-align.svg">
+  <defs
+     id="defs1419" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.76095916"
+     inkscape:cx="5.2215312"
+     inkscape:cy="-119.6894"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1301"
+     inkscape:window-height="744"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata1422">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(8.4661645,-45.767101)">
+    <rect
+       style="fill:#c8f0c8;fill-opacity:1;stroke-width:0.19644029;stroke-miterlimit:3.4000001;stroke-dasharray:none"
+       id="rect1427"
+       width="96.365128"
+       height="3.2121706"
+       x="9.2930584"
+       y="51.054466"
+       ry="0.0052454332" />
+    <rect
+       style="fill:#00ff00;fill-opacity:1;stroke-width:0.19644029;stroke-miterlimit:3.4000001;stroke-dasharray:none"
+       id="rect1429"
+       width="15.525494"
+       height="4.2828941"
+       x="36.328827"
+       y="50.786781"
+       ry="0.0052454332" />
+    <rect
+       style="fill:#c8f0c8;fill-opacity:1;stroke-width:0.19644029;stroke-miterlimit:3.4000001;stroke-dasharray:none"
+       id="rect1427-6"
+       width="96.365128"
+       height="3.2121708"
+       x="9.2930565"
+       y="64.438515"
+       ry="0.0052454337" />
+    <rect
+       style="fill:#00ff00;fill-opacity:1;stroke-width:0.19644029;stroke-miterlimit:3.4000001;stroke-dasharray:none"
+       id="rect1429-7"
+       width="15.525494"
+       height="4.2828941"
+       x="56.940258"
+       y="63.635468"
+       ry="0.0052454337" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.14454767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 36.328825,55.069677 20.611433,8.565792"
+       id="path1449"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.14454767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 51.854318,55.069677 20.611437,8.565792"
+       id="path1451"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.78190708px;line-height:3.61369205px;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14454767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-8.1061983"
+       y="53.998959"
+       id="text1455"><tspan
+         sodipodi:role="line"
+         id="tspan1453"
+         x="-8.1061983"
+         y="53.998959"
+         style="font-size:4.1463418px;stroke-width:0.14454767px">SeqA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.78190708px;line-height:3.61369228px;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14454767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-8.7394829"
+       y="67.856567"
+       id="text1455-5"><tspan
+         sodipodi:role="line"
+         id="tspan1453-3"
+         x="-8.7394829"
+         y="67.856567"
+         style="font-size:4.1463418px;stroke-width:0.14454767px">SeqB</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.78190708px;line-height:3.61369205px;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14454767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="30.172171"
+       y="48.109978"
+       id="text1477"><tspan
+         sodipodi:role="line"
+         id="tspan1475"
+         x="30.172171"
+         y="48.109978"
+         style="font-size:3.08368397px;stroke-width:0.14454767px">Structured RNA A</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.78190708px;line-height:3.61369228px;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14454767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="54.349537"
+       y="75.22464"
+       id="text1477-2"><tspan
+         sodipodi:role="line"
+         id="tspan1475-9"
+         x="54.349537"
+         y="75.22464"
+         style="font-size:3.08368397px;stroke-width:0.14454767px">Structured RNA B</tspan></text>
+  </g>
+</svg>
