@@ -209,7 +209,7 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
     if inverse:
         cmap = plt.get_cmap('hot_r')
-        my_hot_cmap = truncate_colormap(cmap, 0.35, 0.99)  # Discards super white range of hit map
+        my_hot_cmap = truncate_colormap(cmap, 0.3, 1.1)  # Discards super white range of hit map
     else:
         cmap = plt.get_cmap('hot')
         my_hot_cmap = truncate_colormap(cmap, 0.35, 1.0)  # Discards super white range of hit map
