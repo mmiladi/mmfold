@@ -238,7 +238,6 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
     #     plt.colorbar(heatmap)
 
     ax.set_title(title)
-
     ticks = np.arange(0, mat.shape[0], 10)
     ax.set_xticks(ticks)
     ax.set_yticks(ticks)
@@ -257,7 +256,7 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
     ax.set_xlim((-0.5, seq_len-0.5))
 #     ax.set_ylim((-0.5,seq_len-0.5))
-    ax.set_ylim((seq_len-0.5, -.5))
+    ax.set_ylim((seq_len-0.5, -0.5))
 
 
 def plot_heat_maps_fig(fig, subplot_num, mfe_probs, bp_probs_whole, what='all', inverse=False,
@@ -305,7 +304,7 @@ def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', in
         filename += '_inverse'
     fig.savefig(filename+'.pdf', dpi=300)
     fig.savefig(filename+'.svg', dpi=300, format="svg")
-#     return fig
+    return fig
 
 
 def my_heatmaps(rna_seq, context_all, context_len, insert_pos=None, filename='heatmap', what='all', 
