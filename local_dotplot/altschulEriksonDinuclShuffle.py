@@ -143,8 +143,8 @@ def dinuclShuffle(s):
 
 if __name__ == '__main__':
   if len(sys.argv)!=2:
-    print "Usage: %s RNAsequence"
+    print ("Usage: %s RNAsequence")
     sys.exit(1)
   s = sys.argv[1]
   for i in range(5):
-    print dinuclShuffle(s)
+    print (dinuclShuffle(s))

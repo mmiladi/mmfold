@@ -5,6 +5,11 @@ import random
 import os
 import re
 
+from scipy.sparse import csr_matrix
+import warnings
+from scipy.sparse import SparseEfficiencyWarning
+warnings.simplefilter('ignore', SparseEfficiencyWarning)
+
 kT = (37+273.15)*1.98717/1000.0  # /* kT in kcal/mol */
 
 VIENNA_BIN_PATH = '' #'/home/milad/1software/bin/'
@@ -57,9 +62,9 @@ def compute_part_func(infile_fa, seq_names, outdir_path="./", use_plfold=False, 
 
         out, err = p.communicate()
         if err:
-            print "Error in calling RNAfold for ", infile_fa
-            print out
-            print err
+            print ("Error in calling RNAfold for ", infile_fa)
+            print (out)
+            print (err)
 
             # With long sequences RNAfold prints scalign factor to stderr
             if (not use_plfold and not ("scaling factor" in err or "free energy" in err)):
@@ -78,9 +83,9 @@ def compute_mfe_probability(in_seq):
 
     out, err = p.communicate()
     if err:
-        print "Error in calling RNAfold for ", in_seq
-        print out
-        print err
+        print ("Error in calling RNAfold for ", in_seq)
+        print (out)
+        print (err)
         raise RuntimeError
     lines = out.split('\n')
     #     print out
@@ -97,7 +102,7 @@ def compute_mfe_probability(in_seq):
     freq_line = lines[4]
     match = my_re.match(freq_line)
     if match is None or match.groups() is None:
-        print "Error unexpected frequency line format, found:\n  {}\n  {}\n".format(in_seq, freq_line)
+        print ("Error unexpected frequency line format, found:\n  {}\n  {}\n".format(in_seq, freq_line))
         raise RuntimeError
     mfe_prob = (float)(match.groups()[0])
     diversity = (float)(match.groups()[1])
@@ -111,8 +116,8 @@ def getBPPM(sequence, structure="", bppm_cutoff = 0):
     bppm = np.zeros((seq_len, seq_len))
 
     RNA.pf_fold(sequence, structure)
-    for l_pos in xrange(0, seq_len):
-        for r_pos in xrange(l_pos, seq_len+1):
+    for l_pos in range(0, seq_len):
+        for r_pos in range(l_pos, seq_len+1):
             if l_pos<r_pos:
                 bpp = RNA.get_pr(l_pos+1, r_pos+1)
                 if bpp > bppm_cutoff:
@@ -148,7 +153,7 @@ def get_mfe_probs(rna_context_seq):
             mfe_subseq, pf_subseq, mfe_prob_subseq, diversity_subseq = compute_mfe_probability(sub_seq)
             mfe_probs[l_pos, r_pos] = mfe_prob_subseq
             count += 1
-    print count
+    print (count)
     return mfe_probs
 
 
@@ -189,34 +194,37 @@ def my_heatmapMatshowSparse(mat, fig, ax, threshold=1e-3, inverse=True, interact
                origin='lower', zorder=1, interpolation='none')
 
 
-def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive=False, gene_loc=None):
+def my_heatmap(mat, fig, ax, title='', vmin=1e-2,vmax=1.0, inverse=True, interactive=False, gene_loc=None,colormap='hot'):
 
     seq_len = mat.shape[0]
 
     if interactive is True:
-        print "Interactive, large memory consumer!"
+        print ("Interactive, large memory consumer!")
 #         plugins.clear(ax)
 #         plugins.connect(fig, plugins.Reset(), plugins.BoxZoom(), plugins.Zoom())
         ax.plot(np.arange(seq_len+1, -1), np.arange(seq_len+1, -1),  c='black')
     else:
         ax.plot(np.arange(-1, seq_len+1), np.arange(-1, seq_len+1), c='black')
         if gene_loc is not None:
-            print gene_loc
+            print (gene_loc)
             assert len(gene_loc) == 2
+            # gene_loc = gene_loc[0]+0.5 + gene_loc[1]+0.5
             ax.plot(np.arange(gene_loc[0]-1, gene_loc[1]), np.arange(gene_loc[0]-1, gene_loc[1]), c='green', linewidth=2)
             ax.plot(np.ones(gene_loc[1]-gene_loc[0]+1)*(gene_loc[1]-1), np.arange(gene_loc[0]-1, gene_loc[1]), c='green', linewidth=1)
-            ax.plot(np.arange(gene_loc[0]-1, gene_loc[1]), np.ones(gene_loc[1]-gene_loc[0]+1)*(gene_loc[0]-2),  c='green', linewidth=1)
+            ax.plot(np.arange(gene_loc[0]-1, gene_loc[1]), np.ones(gene_loc[1]-gene_loc[0]+1)*(gene_loc[0]-1),  c='green', linewidth=1)
 
     if inverse:
-        cmap = plt.get_cmap('hot_r')
-        my_hot_cmap = truncate_colormap(cmap, 0.3, 1.1)  # Discards super white range of hit map
+        cmap = plt.get_cmap(colormap+'_r')
+        if colormap == 'hot':
+            cmap = truncate_colormap(cmap, 0.3, 1.1)  # Discards super white range of hit map
     else:
-        cmap = plt.get_cmap('hot')
-        my_hot_cmap = truncate_colormap(cmap, 0.35, 1.0)  # Discards super white range of hit map
+        cmap = plt.get_cmap(colormap)
+        if colormap == 'hot':
+            cmap = truncate_colormap(cmap, 0.35, 1.0)  # Discards super white range of hit map
 
 #     plugins.connect(fig, plugins.MousePosition(fontsize=14))
 
-    heatmap = ax.matshow(mat, cmap=my_hot_cmap, vmin=threshold, vmax=1, ) #, interpolation='nearest')
+    heatmap = ax.matshow(mat, cmap=cmap, vmin=vmin, vmax=vmax, ) #, interpolation='nearest')
 #     y, x = np.mgrid[:mat.shape[0], :mat.shape[1]]
 #     x,y = x.ravel(),y.ravel()
 
@@ -225,11 +233,17 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
     ax.set_xticklabels([])
     ax.set_yticklabels([])
-    barticks = [threshold] + [r/10.0 for r in range(1, 11)]
-    barlabels = [str(threshold)] + [str(r/10.0) for r in range(1, 11)]
-    cbar = fig.colorbar(heatmap, extend='min', ticks=barticks ,fraction=0.043, pad=0.04)
+    if colormap == 'hot':
+        barticks = [vmin] + [r/10.0 for r in range(1, 11)]
+        barlabels = [str(vmin)] + [str(r/10.0) for r in range(1, 11)]
+    
+        cbar = fig.colorbar(heatmap, extend='min', ticks=barticks ,fraction=0.043, pad=0.04)
+    else:
+        barticks =  [r/10.0 for r in range(-10, 11)]
+        barlabels = [str(r/10.0) for r in range(-10, 11)]
+        cbar = fig.colorbar(heatmap,  ticks=barticks ,fraction=0.043, pad=0.04)
 
-    cbar.ax.set_yticklabels(barlabels)
+    # cbar.ax.set_yticklabels(barlabels)
     if inverse:
         cbar.cmap.set_under('white')
     else:
@@ -260,25 +274,26 @@ def my_heatmap(mat, fig, ax, title='', threshold=1e-2, inverse=True, interactive
 
 
 def plot_heat_maps_fig(fig, subplot_num, mfe_probs, bp_probs_whole, what='all', inverse=False,
-                   interactive=False, gene_loc=None, title_suffix=''):
+                   interactive=False, gene_loc=None, title_suffix='',vmin=1e-2,vmax=1.0, colormap='hot'):
 
     if what == 'basepairs' or what == 'all':
-        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs '+title_suffix
-                   , inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), title_suffix
+                   , inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
 
     if what == 'mfe-probs' or what == 'all':
-        my_heatmap(mfe_probs, fig, fig.add_subplot(subplot_num + 3), 'struct-probs:'+title_suffix,
-                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+        my_heatmap(mfe_probs, fig, fig.add_subplot(subplot_num + 3), 'mfe:'+title_suffix,
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
     if what == 'all':
         my_heatmap(bp_probs_whole*mfe_probs, fig, fig.add_subplot(subplot_num + 2), 'bp*struct:'+title_suffix,
-                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
         my_heatmap(np.sqrt(bp_probs_whole*mfe_probs), fig, fig.add_subplot(subplot_num + 4), 'sqrt(bp*struct):'+title_suffix,
-                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
 
     #     fig.savefig(filename+'.png', dpi=800)
 
-def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', inverse=False, 
-                   interactive=False, gene_loc=None, title_suffix=''):
+def plot_heat_maps(mfe_probs, bp_probs_whole, filename='', what='all', inverse=False, 
+                   interactive=False, gene_loc=None, title_suffix='',vmin=1e-2,vmax=1.0, out_dir='./',
+                   upper_triangle_txt='',lower_triangle_txt='',colormap='hot'):
     if what == 'all':
         fig = plt.figure(figsize=(20, 5))
         subplot_num = 140
@@ -287,23 +302,30 @@ def plot_heat_maps(mfe_probs, bp_probs_whole, filename='heatmap', what='all', in
         subplot_num = 110
 
     if what == 'basepairs' or what == 'all':
-        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), 'bp-probs'+title_suffix
-                   , inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+        my_heatmap(bp_probs_whole, fig, fig.add_subplot(subplot_num + 1), title_suffix
+                   , inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
 
     if what == 'mfe-probs' or what == 'all':
-        my_heatmap(mfe_probs, fig, fig.add_subplot(subplot_num + 3), 'struct-probs:'+title_suffix,
-                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+        my_heatmap(mfe_probs, fig, fig.add_subplot(subplot_num + 3), 'mfe-probs:'+title_suffix,
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
     if what == 'all':
         my_heatmap(bp_probs_whole*mfe_probs, fig, fig.add_subplot(subplot_num + 2), 'bp*struct:'+title_suffix,
-                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
         my_heatmap(np.sqrt(bp_probs_whole*mfe_probs), fig, fig.add_subplot(subplot_num + 4), 'sqrt(bp*struct):'+title_suffix,
-                   inverse=inverse, interactive=interactive, gene_loc=gene_loc)
+                   inverse=inverse, interactive=interactive, gene_loc=gene_loc,vmin=vmin,vmax=vmax,colormap=colormap)
 
+
+    fig.text(x=0.72,y=0.3,s=upper_triangle_txt, alpha=0.5)
+    fig.text(x=0.65,y=0.18,s=lower_triangle_txt, alpha=0.5)
+    
     #     fig.savefig(filename+'.png', dpi=800)
-    if inverse:
-        filename += '_inverse'
-    fig.savefig(filename+'.pdf', dpi=300)
-    fig.savefig(filename+'.svg', dpi=300, format="svg")
+    # if inverse:
+        # filename += '_inverse'
+    #fig.savefig(filename+'.pdf', dpi=300)
+
+    
+    fig.savefig(os.path.join(out_dir, filename+'-dotplot.svg'), dpi=300, format="svg")
+    fig.savefig(os.path.join(out_dir, filename+'-dotplot.png'), dpi=600, format="png")
     return fig
 
 
@@ -311,7 +333,7 @@ def my_heatmaps(rna_seq, context_all, context_len, insert_pos=None, filename='he
                 inverse=True, interactive=False, motif_len=None):
 
     if context_all == None:
-        print "Full sequence and context given"
+        print ("Full sequence and context given")
         whole_seq_context = rna_seq
         gene_loc = [insert_pos, insert_pos+motif_len]
     else:
@@ -319,8 +341,8 @@ def my_heatmaps(rna_seq, context_all, context_len, insert_pos=None, filename='he
         if insert_pos is None:
             insert_pos = len(context_selection)/2
         whole_seq_context = context_selection[:insert_pos] + rna_seq + context_selection[insert_pos:]
-        print whole_seq_context
-        print len(rna_seq), len(context_selection), insert_pos
+        print (whole_seq_context)
+        print (len(rna_seq), len(context_selection), insert_pos)
         gene_loc = [insert_pos, insert_pos+len(rna_seq)]
         
     if what == 'basepairs':
@@ -413,7 +435,7 @@ def parse_dp_ps_sparse(ps_file, sparse=False, bp_range=None, skip_pos=None):
 
     bp_prob_dict = dict()
     mfe_struct_dict = dict()
-    from scipy.sparse import csr_matrix
+
     if sparse:
         bp_prob_mat = csr_matrix((len(myseq), len(myseq)))
 
@@ -503,7 +525,8 @@ def plot_dp_ps(dp, sparse=False, gene_loc=None, inverse=False, cut_gene=False, t
 
 
 def plot_differential_dp_ps(dp1, dp2, skips_pos= [None, None], sparse=False, gene_loc=None, inverse=False, cut_gene=False, title='', infig=None
-               , subplot_num=None):
+               , subplot_num=None,mut_insert_range=None,mut_delete_range=None,vmin=-1.0,vmax=1.0, ):
+
     from os.path import basename, dirname
     assert len(skips_pos) == 2
     if cut_gene is True:
@@ -514,7 +537,14 @@ def plot_differential_dp_ps(dp1, dp2, skips_pos= [None, None], sparse=False, gen
 #     from pankoff_lib import parse_dp_ps
     np_arr1, mfe_dict1 = parse_dp_ps_sparse(dp1, sparse, parser_range, skips_pos[0])
     np_arr2, mfe_dict2 = parse_dp_ps_sparse(dp2, sparse, parser_range, skips_pos[1])
-    
+    if mut_insert_range:
+        np_arr2 = np.delete(np.delete(np_arr2,mut_insert_range,0),
+          mut_insert_range,1)
+    if mut_delete_range:
+        np_arr1 = np.delete(np.delete(np_arr1,mut_delete_range,0),
+          mut_delete_range,1)
+
+
     np_arr = np_arr1 - np_arr2
     if infig is None:
         fig = plt.figure(figsize=(7, 7))
@@ -526,18 +556,21 @@ def plot_differential_dp_ps(dp1, dp2, skips_pos= [None, None], sparse=False, gen
         assert len(gene_loc) == 2
         np_arr_cut = np_arr[gene_loc[0]-2:gene_loc[1]+1, gene_loc[0]-2:gene_loc[1]+1]
         plot_heat_maps_fig(fig, subplot_num, None, np_arr_cut,  what='basepairs', gene_loc=None,
-                           inverse=inverse, interactive=False, title_suffix=title)
+                           inverse=inverse, interactive=False, title_suffix=title,vmin=vmin,vmax=vmax,
+                           colormap='seismic')
 
     else:
         plot_heat_maps_fig(fig, subplot_num, None, np_arr, what='basepairs', gene_loc=gene_loc,
-                           inverse=inverse, interactive=False, title_suffix=title)
+                           inverse=inverse, interactive=False, title_suffix=title,vmin=vmin,vmax=vmax,
+                           colormap='seismic')
 
     if infig is None:
-        filename = dirname(dp)+"/"+basename(dp)
+        filename = dirname(dp1)+"/"+basename(dp1)+basename(dp2)+'_diff'
         if inverse:
             filename += '_inverse'
 #         fig.savefig(filename+'.pdf', dpi=300)
         fig.savefig(filename+'.svg', dpi=300, format="svg")
+
 
 ### Code snippet for Vienna python pavckage
 # RNA.cvar.fold_constrained = 0
